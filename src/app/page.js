@@ -49,15 +49,15 @@ export default function HomePage() {
             {/* Map Preview */}
             <div className="border-8 border-indigo-500 shadow-brutalist transform rotate-1 max-w-5xl mx-auto bg-gray-100 aspect-video relative overflow-hidden">
               <Image 
-                src="/globe.svg" 
-                alt="Geomockery Map Preview" 
+                src="/images/app.png" 
+                alt="Geomockery App Screenshot - Generate realistic geospatial data" 
                 fill
-                className="object-cover bg-gradient-to-br from-indigo-100 to-indigo-300 p-12"
+                className="object-cover"
                 priority
               />
-              <div className="absolute inset-0 bg-indigo-900 opacity-20"></div>
-              <div className="absolute top-8 left-8 bg-indigo-500 border-4 border-indigo-700 py-3 px-6 transform -rotate-2">
-                <span className="text-xl font-black text-white">PREVIEW</span>
+              <div className="absolute inset-0 bg-indigo-900 opacity-10"></div>
+              <div className="absolute top-8 left-8 bg-pink-500 border-4 border-pink-700 py-3 px-6 transform -rotate-2">
+                <span className="text-xl font-black text-white">LIVE APP</span>
               </div>
             </div>
           </div>
@@ -148,6 +148,78 @@ export default function HomePage() {
               <p className="text-lg font-bold text-indigo-700">
                 Generate large datasets with API access for integration with other tools.
               </p>
+            </div>
+          </div>
+        </section>
+        
+        {/* About Section */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto bg-gradient-to-br from-gray-50 to-indigo-50">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-black text-indigo-900 mb-8 uppercase tracking-tight">
+              <span className="inline-block transform -rotate-1 border-b-8 border-cyan-500 pb-2">
+                Why Geomockery?
+              </span>
+            </h2>
+            <p className="text-xl md:text-2xl font-bold text-indigo-600 max-w-4xl mx-auto leading-relaxed">
+              Every geospatial developer knows the pain of waiting for "real" data
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8">
+              <div className="bg-white border-8 border-red-400 shadow-brutalist transform -rotate-1 p-6">
+                <h3 className="text-2xl font-black text-red-600 mb-4">THE PROBLEM</h3>
+                <ul className="space-y-3 text-lg font-bold text-gray-700">
+                  <li>🚧 Real data isn't ready (and never will be on time)</li>
+                  <li>🔒 Privacy concerns make production data off-limits</li>
+                  <li>📊 You need specific edge cases that don't exist</li>
+                  <li>🏗️ Client data is under NDA but you still need to build</li>
+                </ul>
+              </div>
+              
+              <div className="bg-white border-8 border-green-500 shadow-brutalist transform rotate-1 p-6">
+                <h3 className="text-2xl font-black text-green-600 mb-4">OUR SOLUTION</h3>
+                <ul className="space-y-3 text-lg font-bold text-gray-700">
+                  <li>⚡ Generate realistic data in seconds, not weeks</li>
+                  <li>🎯 Custom-tailored for your exact use case</li>
+                  <li>🛡️ 100% privacy-safe with zero real-world exposure</li>
+                  <li>🎨 Creative and fun - make data generation enjoyable</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="bg-white border-8 border-purple-500 shadow-brutalist transform rotate-2 p-8">
+              <h3 className="text-3xl font-black text-purple-600 mb-6 text-center">
+                FROM CONCEPT TO CODE
+              </h3>
+              <div className="space-y-4 text-lg font-bold text-gray-700">
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">🗺️</span>
+                  <span>Navigate to any area on the map</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">🎯</span>
+                  <span>Define your data requirements</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">⚡</span>
+                  <span>Generate features with one click</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">💾</span>
+                  <span>Export in your preferred format</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">🎉</span>
+                  <span>Use immediately in your app</span>
+                </div>
+              </div>
+              
+              <div className="mt-8 p-4 bg-purple-100 border-4 border-purple-300 transform -rotate-1">
+                <p className="text-lg font-black text-purple-800 text-center">
+                  "Stop waiting for data.<br/>Start building with confidence."
+                </p>
+              </div>
             </div>
           </div>
         </section>
