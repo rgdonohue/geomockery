@@ -63,6 +63,19 @@ export default function HomePage() {
           </div>
         </section>
         
+        {/* Development Status Banner */}
+        <section className="py-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <div className="bg-amber-100 border-4 border-amber-400 shadow-brutalist transform -rotate-1 p-4 text-center">
+            <div className="flex items-center justify-center space-x-3">
+              <span className="text-2xl">🚧</span>
+              <p className="text-lg font-black text-amber-800">
+                <span className="text-amber-900">DEVELOPMENT STATUS:</span> Approaching alpha release - core features functional, expect some rough edges!
+              </p>
+              <span className="text-2xl">⚡</span>
+            </div>
+          </div>
+        </section>
+        
         {/* Features Grid */}
         <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black text-indigo-900 mb-16 text-center uppercase tracking-tight">

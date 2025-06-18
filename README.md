@@ -8,6 +8,8 @@
 
 Built with modern web technologies and a brutalist design philosophy, Geomockery transforms the tedious process of creating test data into a fun, creative experience.
 
+> **🚧 Development Status:** Geomockery is currently in active development and approaching alpha release. Core features are functional, but expect some rough edges as we polish the experience. We welcome feedback and contributions!
+
 ---
 
 ## 🎯 **About: Filling the Void in Geospatial Development**
