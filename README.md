@@ -1,6 +1,6 @@
 # Geomockery
 
-![Geomockery Logo](public/logo.svg)
+![Geomockery Logo](public/images/app.png)
 
 **Geomockery** is an AI-powered application for generating realistic mock geospatial data for testing and development purposes. Built with Next.js and leveraging modern geospatial libraries, it helps developers quickly generate custom data in various formats.
 
