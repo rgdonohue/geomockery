@@ -3,18 +3,30 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroicons/react": "^1.0.6",
+    "@mapbox/shp-write": "^0.4.3",
+    "@ngageoint/geopackage": "^4.2.6",
+    "@observablehq/plot": "^0.6.17",
+    "@turf/turf": "^7.2.0",
+    "clsx": "^2.1.1",
+    "d3-array": "^3.2.4",
+    "file-saver": "^2.0.5",
+    "next": "15.2.3",
+    "ol": "^10.4.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.2.3"
+    "shp-write": "^0.3.2",
+    "shpjs": "^6.1.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4"
+    "autoprefixer": "^10.4.18",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1"
   }
 }

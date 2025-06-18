@@ -1,0 +1,38 @@
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5" /> <!-- indigo-600 -->
+      <stop offset="50%" stop-color="#8B5CF6" /> <!-- violet-500 -->
+      <stop offset="100%" stop-color="#EC4899" /> <!-- pink-500 -->
+    </linearGradient>
+  </defs>
+  
+  <!-- Base map shape -->
+  <path 
+    d="M3 6C3 4.89543 3.89543 4 5 4H19C20.1046 4 21 4.89543 21 6V18C21 19.1046 20.1046 20 19 20H5C3.89543 20 3 19.1046 3 18V6Z" 
+    fill="url(#gradient)" 
+    stroke="#27272A" 
+    stroke-width="1"
+  />
+  
+  <!-- Grid lines -->
+  <path d="M3 9H21" stroke="white" stroke-width="0.5" stroke-dasharray="1 1" />
+  <path d="M3 14H21" stroke="white" stroke-width="0.5" stroke-dasharray="1 1" />
+  <path d="M8 4V20" stroke="white" stroke-width="0.5" stroke-dasharray="1 1" />
+  <path d="M16 4V20" stroke="white" stroke-width="0.5" stroke-dasharray="1 1" />
+  
+  <!-- Point feature -->
+  <circle cx="12" cy="9" r="1.5" fill="#FFDD00" stroke="#27272A" stroke-width="0.5" />
+  
+  <!-- Line feature -->
+  <path d="M6 16L10 12L14 15L18 10" stroke="#2DD4BF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+  
+  <!-- Polygon feature -->
+  <path 
+    d="M18 7L20 9L17 13L14 12L16 7L18 7Z" 
+    fill="#F472B6" 
+    stroke="#27272A" 
+    stroke-width="0.5" 
+    fill-opacity="0.8"
+  />
+</svg> 

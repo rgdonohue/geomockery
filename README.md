@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Geomockery
 
-## Getting Started
+![Geomockery Logo](public/logo.svg)
 
-First, run the development server:
+**Geomockery** is an AI-powered application for generating realistic mock geospatial data for testing and development purposes. Built with Next.js and leveraging modern geospatial libraries, it helps developers quickly generate custom data in various formats.
+
+## ⚡ Features
+
+- **Multi-format Geometry Generation**: Create points, lines, polygons with realistic properties and spatial relationships
+- **Custom Attribute Definition**: Specify your own attribute schemas with AI-powered value generation
+- **Multiple Input Methods**: Draw directly on the map, upload existing GeoJSON, or use the visible map area
+- **Multiple Export Formats**: Download your data as GeoJSON, Shapefile, or GeoPackage
+- **Visual Customization**: Control quantity, distribution, and properties of all generated features
+
+## 🚀 Getting Started
 
 ```bash
+# Clone the repository
+git clone https://github.com/yourusername/geomockery.git
+
+# Install dependencies
+cd geomockery
+npm install
+
+# Run the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the application in action.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 💻 Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Define Generation Area**: Choose to generate within the visible map, draw a custom area, or upload your own GeoJSON boundaries
+2. **Configure Features**: Select geometry types, quantities, and custom attributes to generate
+3. **Generate Data**: Create realistic geospatial features with one click
+4. **Export Results**: Download your data in your preferred format for use in GIS applications or development
 
-## Learn More
+## 🧩 Technical Architecture
 
-To learn more about Next.js, take a look at the following resources:
+Geomockery is built with a modern web stack:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Frontend**: Next.js, React, TailwindCSS (with a brutalist design system)
+- **Maps**: OpenLayers for visualization and interaction
+- **Geospatial Analysis**: Turf.js for advanced spatial operations
+- **Data Processing**: Custom utilities for format conversion and feature generation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📊 Attribute Generation
 
-## Deploy on Vercel
+Geomockery supports the following attribute types for your generated features:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Nominal**: Categorical values from defined sets (e.g., land use types, facility categories)
+- **Ordinal**: Ranked values with specific order (e.g., priority levels, intensity ratings)
+- **Quantitative**: Numerical values with customizable ranges and distributions
+- **Temporal**: Date and time values within specified ranges
+- **Identifiers**: Unique IDs and reference codes following configurable patterns
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔄 Roadmap
+
+- Raster data generation (elevation models, land cover)
+- Advanced statistical distributions for attribute generation
+- Batch mode and API for integration with other tools
+- Collaborative feature creation and editing
+- Support for more specialized geospatial formats
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+[MIT](https://choosealicense.com/licenses/mit/)
