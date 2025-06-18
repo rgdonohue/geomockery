@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { generateConversationalResponse, generatePreviewWithGeography } from '../utils/aiProcessor';
+import { generateConversationalResponse, generatePreviewWithGeography } from '@/lib/ai/aiProcessor';
 
 export default function AiConversation({ prompt, onApplySettings, onClearPrompt, onMapOperation }) {
   const [conversation, setConversation] = useState(null);

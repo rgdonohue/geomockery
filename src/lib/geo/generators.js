@@ -1,5 +1,5 @@
 import * as turf from '@turf/turf';
-import { getRandomFloat, getRandomInt, getRandomBoolean, getRandomArrayItem, getRandomId } from './random';
+import { getRandomFloat, getRandomInt, getRandomBoolean, getRandomArrayItem, getRandomId } from '@/lib/utils/random';
 
 /**
  * Generate a random point within bounds and optionally within a constraining polygon

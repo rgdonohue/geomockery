@@ -6,9 +6,9 @@ import GenerateMap from './components/GenerateMap';
 import FeatureAttributeEditor from './components/FeatureAttributeEditor';
 import GeoJSONUploader from './components/GeoJSONUploader';
 import AiConversation from './components/AiConversation';
-import { exportAsGeoJSON, exportAsShapefile, exportAsGeoPackage } from './utils/exporters';
-import { parsePrompt, generateSmartDefaults, validatePrompt, getExamplePrompts } from './utils/aiProcessor';
-import Layout from '../components/Layout';
+import { exportAsGeoJSON, exportAsShapefile, exportAsGeoPackage } from '@/lib/geo/exporters';
+import { parsePrompt, generateSmartDefaults, validatePrompt, getExamplePrompts } from '@/lib/ai/aiProcessor';
+import Layout from '@/components/layout/Layout';
 
 export default function GeneratePage() {
   // Map and geometry state

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import ReasoningPromptForm from '../components/ReasoningPromptForm';
+import ReasoningPromptForm from '@/components/forms/ReasoningPromptForm';
 
 export default function ReasoningPage() {
   const [result, setResult] = useState(null);

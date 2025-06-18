@@ -3,7 +3,7 @@
  * Handles natural language prompt parsing and contextual attribute generation
  */
 
-import { analyzePromptWithGeography, generatePreviewData } from './geoIntelligence.js';
+import { analyzePromptWithGeography, generatePreviewData } from '@/lib/ai/geoIntelligence.js';
 
 // Common domain-specific keywords and their associated attributes
 const DOMAIN_TEMPLATES = {

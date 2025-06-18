@@ -11,7 +11,7 @@ import { GeoJSON } from 'ol/format';
 import * as olControl from 'ol/control';
 import { Fill, Stroke, Style, Circle as CircleStyle } from 'ol/style';
 import * as turf from '@turf/turf';
-import { generatePoint, generateLine, generatePolygon } from '../utils/generators';
+import { generatePoint, generateLine, generatePolygon } from '@/lib/geo/generators';
 
 /**
  * Map component for generating and visualizing geospatial features

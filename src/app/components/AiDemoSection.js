@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { parsePrompt, getExamplePrompts } from '../generate/utils/aiProcessor';
+import { parsePrompt, getExamplePrompts } from '@/lib/ai/aiProcessor';
 
 export default function AiDemoSection() {
   const [demoPrompt, setDemoPrompt] = useState('');
