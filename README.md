@@ -59,7 +59,7 @@ Geomockery fills this gap with:
 ### 🚀 **Performance & Scale**
 - **Client-Side Generation**: No server dependency, works offline
 - **Scalable Output**: Generate 1 to 50,000+ features efficiently
-- **Modern Architecture**: Built with Next.js 15, React 19, and professional project structure
+- **Modern Stack**: Built with Next.js 15, React 19, and clean project structure
 
 ---
 
@@ -108,9 +108,9 @@ Features are generated with realistic spatial relationships:
 
 ---
 
-## 🏗️ **Professional Architecture**
+## 🏗️ **Architecture**
 
-Geomockery is built with enterprise-grade organization:
+Geomockery is organized with a clean, maintainable structure:
 
 ```
 src/

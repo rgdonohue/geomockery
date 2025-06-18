@@ -195,7 +195,7 @@
 1. API endpoints for programmatic access
 2. Collaboration features
 3. Raster data generation
-4. Enterprise features
+4. Advanced features
 
 ---
 
