@@ -114,14 +114,18 @@ Geomockery is organized with a clean, maintainable structure:
 
 ```
 src/
-├── lib/                    # Core business logic
-│   ├── geo/               # Geospatial operations
-│   ├── ai/                # AI processing
-│   └── utils/             # Shared utilities
-├── hooks/                 # Custom React hooks
-├── components/            # Reusable UI components
-├── config/               # Application settings
-└── data/                 # Schemas and examples
+├── app/                   # Next.js app directory (pages, components, styles)
+├── lib/                   # Core business logic
+│   ├── geo/              # Geospatial operations (generators, exporters)
+│   ├── ai/               # AI processing (aiProcessor, geoIntelligence)
+│   └── utils/            # Shared utilities (random, helpers)
+├── hooks/                # Custom React hooks (useFeatureGeneration, useExport)
+├── components/           # Reusable UI components
+│   ├── layout/          # Header, Layout components
+│   ├── forms/           # Form components
+│   └── ui/              # Base UI components
+├── config/              # Application settings (constants, map config)
+└── data/                # Schemas and examples (attributeSchema, fixtures)
 ```
 
 **Tech Stack:**
