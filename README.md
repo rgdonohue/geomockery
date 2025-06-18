@@ -65,7 +65,7 @@ Geomockery fills this gap with:
 
 ```bash
 # Clone this beauty
-git clone https://github.com/yourusername/geomockery.git
+git clone https://github.com/rgdonohue/geomockery.git
 
 # Jump in
 cd geomockery

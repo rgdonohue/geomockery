@@ -36,7 +36,7 @@ export default function HomePage() {
                   Generate Data
                 </Link>
                 <a 
-                  href="https://github.com/yourusername/geomockery" 
+                  href="https://github.com/rgdonohue/geomockery" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="inline-block py-5 px-8 bg-white text-indigo-700 text-xl font-black uppercase tracking-wider border-4 border-indigo-500 shadow-brutalist hover:translate-y-[-4px] transition-transform"
@@ -282,9 +282,9 @@ export default function HomePage() {
               <div>
                 <h3 className="font-bold text-lg mb-4 text-pink-400">Resources</h3>
                 <ul className="space-y-2">
-                  <li><a href="https://github.com/yourusername/geomockery" className="hover:text-pink-400 font-medium">GitHub</a></li>
-                  <li><a href="https://github.com/yourusername/geomockery/issues" className="hover:text-pink-400 font-medium">Issues</a></li>
-                  <li><a href="https://github.com/yourusername/geomockery/blob/main/LICENSE" className="hover:text-pink-400 font-medium">License</a></li>
+                  <li><a href="https://github.com/rgdonohue/geomockery" className="hover:text-pink-400 font-medium">GitHub</a></li>
+                  <li><a href="https://github.com/rgdonohue/geomockery/issues" className="hover:text-pink-400 font-medium">Issues</a></li>
+                  <li><a href="https://github.com/rgdonohue/geomockery/blob/main/LICENSE" className="hover:text-pink-400 font-medium">License</a></li>
                 </ul>
               </div>
             </div>
