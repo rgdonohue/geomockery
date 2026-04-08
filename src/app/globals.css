@@ -4,9 +4,10 @@
 @tailwind utilities;
 
 @layer base {
+  html,
   body {
     @apply m-0 p-0 antialiased;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   }
 }
 
@@ -16,29 +17,28 @@
     max-width: 1280px;
   }
 
-  .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 font-medium rounded-md transition-colors;
-    @apply bg-indigo-600 text-white hover:bg-indigo-700;
+  /* OpenLayers controls — dark map style */
+  .ol-zoom {
+    top: 0.75rem;
+    left: 0.75rem;
   }
 
-  /* OpenLayers zoom control styling to match brutalist theme */
-  .ol-zoom {
-    @apply top-2 left-2;
-  }
-  
   .ol-zoom .ol-zoom-in,
   .ol-zoom .ol-zoom-out {
-    @apply bg-white border-2 border-indigo-500 text-indigo-600 font-black text-lg;
-    @apply hover:bg-indigo-500 hover:text-white transition-colors;
-    @apply shadow-lg;
-    border-radius: 0 !important; /* Remove rounded corners for brutalist look */
-    width: 32px !important;
-    height: 32px !important;
+    @apply bg-slate-900/90 border border-slate-700 text-slate-300 font-bold text-base;
+    @apply hover:bg-slate-800 hover:text-white transition-colors;
+    border-radius: 0 !important;
+    width: 30px !important;
+    height: 30px !important;
     line-height: 28px !important;
+    display: block;
   }
-  
-  .ol-zoom .ol-zoom-in:hover,
-  .ol-zoom .ol-zoom-out:hover {
-    @apply transform translate-y-[-2px];
+
+  .ol-attribution {
+    @apply bg-slate-900/70 text-slate-500 text-[10px];
+  }
+
+  .ol-attribution a {
+    @apply text-slate-500;
   }
 }

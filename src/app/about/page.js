@@ -9,297 +9,214 @@ export default function AboutPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-white pb-24">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden pt-20 pb-16 px-4 sm:px-6 lg:px-8">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 grid grid-cols-12 grid-rows-6 opacity-5">
-            {Array.from({ length: 12 * 6 }).map((_, i) => (
-              <div key={i} className="border border-gray-900" />
-            ))}
-          </div>
-          
-          <div className="relative max-w-7xl mx-auto text-center">
-            <h1 className="font-black text-5xl md:text-7xl tracking-tight mb-8 text-indigo-900">
-              <span className="inline-block transform -rotate-2">ABOUT</span>
-              <span className="inline-block text-pink-600 transform rotate-2 ml-4">GEOMOCKERY</span>
+      <main className="min-h-screen bg-white">
+
+        {/* Hero */}
+        <section className="bg-slate-950 text-white py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto max-w-2xl">
+            <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">About</span>
+            <h1 className="mt-2 text-4xl md:text-6xl font-black tracking-tight text-white">
+              Why Geomockery exists
             </h1>
-            <p className="text-xl md:text-2xl font-bold text-indigo-700 max-w-4xl mx-auto leading-relaxed mb-12">
-              The story of why we built the geospatial data generator that developers actually want to use
+            <p className="mt-6 text-xl text-slate-400 leading-relaxed">
+              Geospatial developers constantly need plausible test data — and it's almost never available when they need it.
             </p>
           </div>
         </section>
 
-        {/* The Problem Section */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        {/* The problem */}
+        <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
             <div>
-              <h2 className="text-4xl md:text-5xl font-black text-red-600 mb-8 transform -rotate-1">
-                THE DEVELOPER<br/>DILEMMA
-              </h2>
-              <div className="space-y-6 text-lg font-bold text-gray-700">
-                <p>
-                  Every geospatial developer has been stuck in this frustrating cycle:
-                </p>
-                <div className="bg-red-50 border-8 border-red-400 shadow-brutalist transform rotate-1 p-6">
-                  <ul className="space-y-4">
-                    <li className="flex items-start space-x-3">
-                      <span className="text-2xl">🚧</span>
-                      <span><strong>"The real data isn't ready yet"</strong> - and it never will be on time</span>
-                    </li>
-                    <li className="flex items-start space-x-3">
-                      <span className="text-2xl">🔒</span>
-                      <span><strong>Privacy concerns</strong> make production data completely off-limits</span>
-                    </li>
-                    <li className="flex items-start space-x-3">
-                      <span className="text-2xl">📊</span>
-                      <span><strong>You need specific edge cases</strong> that don't exist in real datasets</span>
-                    </li>
-                    <li className="flex items-start space-x-3">
-                      <span className="text-2xl">🏗️</span>
-                      <span><strong>Client data is under NDA</strong> but you still need to build the app</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
+              <span className="text-xs font-bold uppercase tracking-widest text-red-500">The problem</span>
+              <h2 className="mt-2 text-3xl font-black text-slate-900 mb-8">The developer dilemma</h2>
+              <p className="text-slate-500 mb-8 leading-relaxed">
+                Every geospatial developer has been stuck in this cycle. Real data is unavailable, restricted, or just too slow to obtain.
+              </p>
+              <ul className="space-y-4">
+                {[
+                  { label: 'Real data isn\'t ready', detail: 'And it never will be on your timeline' },
+                  { label: 'Privacy restrictions', detail: 'Production data is completely off-limits' },
+                  { label: 'Missing edge cases', detail: 'Specific scenarios that don\'t exist in the wild' },
+                  { label: 'NDA constraints', detail: 'Client data is protected but you still need to build' },
+                ].map(({ label, detail }) => (
+                  <li key={label} className="flex items-start gap-4">
+                    <span className="mt-1 w-5 h-5 flex-shrink-0 flex items-center justify-center bg-red-50 border border-red-100">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                    </span>
+                    <div>
+                      <span className="font-semibold text-slate-800">{label}</span>
+                      <span className="text-slate-500"> — {detail}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
-            
-            <div className="bg-white border-8 border-red-500 shadow-brutalist transform -rotate-2 p-8">
-              <h3 className="text-3xl font-black text-red-600 mb-6 text-center">
-                TRADITIONAL "SOLUTIONS"
-              </h3>
-              <div className="space-y-4 text-lg font-bold text-gray-700">
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">😤</span>
-                  <span>Generic placeholder data that doesn't reflect reality</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">⏰</span>
-                  <span>Manually crafting test datasets (soul-crushing)</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">📐</span>
-                  <span>Oversimplified shapes that miss spatial relationships</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">📋</span>
-                  <span>CSV files with lat/lon that bear no resemblance to real use</span>
-                </div>
-              </div>
-              
-              <div className="mt-8 p-4 bg-red-100 border-4 border-red-300 transform rotate-1">
-                <p className="text-xl font-black text-red-800 text-center">
-                  "There has to be a better way!"
-                </p>
-              </div>
+
+            <div className="bg-slate-950 text-white p-10">
+              <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">The solution</span>
+              <h3 className="mt-2 text-2xl font-black mb-6">Geomockery</h3>
+              <p className="text-slate-400 mb-8 leading-relaxed">
+                Generate plausible synthetic geospatial data in seconds. Configurable, browser-only, and immediately exportable.
+              </p>
+              <ul className="space-y-4">
+                {[
+                  'Points, lines, and polygons inside any boundary',
+                  'Custom attribute schemas with auto-generated values',
+                  'GeoJSON and Shapefile export, no server required',
+                  'Draw or upload your own boundary for any area',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-slate-300">
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-indigo-400 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </section>
 
-        {/* The Solution Section */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto bg-gradient-to-br from-green-50 to-cyan-50">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black text-green-600 mb-8 transform rotate-1">
-              ENTER GEOMOCKERY
-            </h2>
-            <p className="text-xl md:text-2xl font-bold text-green-700 max-w-4xl mx-auto leading-relaxed">
-              We built the geospatial data generator that fits how developers actually work
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white border-8 border-green-500 shadow-brutalist transform -rotate-1 p-6">
-              <div className="w-16 h-16 bg-green-500 flex items-center justify-center mb-6 transform rotate-3 border-4 border-green-700 mx-auto">
-                <span className="text-2xl">⚡</span>
-              </div>
-              <h3 className="text-2xl font-black text-green-600 mb-4 text-center">SPEED</h3>
-              <p className="text-lg font-bold text-gray-700 text-center">
-                Generate synthetic datasets in seconds, not weeks of waiting
-              </p>
+        {/* How it works */}
+        <section className="bg-slate-50 py-20 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-12">
+              <span className="text-xs font-bold uppercase tracking-widest text-indigo-500">How it works</span>
+              <h2 className="mt-2 text-3xl font-black text-slate-900">Four steps to a dataset</h2>
             </div>
-            
-            <div className="bg-white border-8 border-cyan-500 shadow-brutalist transform rotate-1 p-6">
-              <div className="w-16 h-16 bg-cyan-500 flex items-center justify-center mb-6 transform -rotate-3 border-4 border-cyan-700 mx-auto">
-                <span className="text-2xl">🎯</span>
-              </div>
-              <h3 className="text-2xl font-black text-cyan-600 mb-4 text-center">PRECISION</h3>
-              <p className="text-lg font-bold text-gray-700 text-center">
-                Configurable geometry, attributes, and boundary for your specific needs
-              </p>
-            </div>
-            
-            <div className="bg-white border-8 border-purple-500 shadow-brutalist transform -rotate-1 p-6">
-              <div className="w-16 h-16 bg-purple-500 flex items-center justify-center mb-6 transform rotate-3 border-4 border-purple-700 mx-auto">
-                <span className="text-2xl">🛡️</span>
-              </div>
-              <h3 className="text-2xl font-black text-purple-600 mb-4 text-center">PRIVACY</h3>
-              <p className="text-lg font-bold text-gray-700 text-center">
-                Browser-based generation with no remote model or server-side generation step
-              </p>
-            </div>
-          </div>
-        </section>
 
-        {/* Mission Statement */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 border-8 border-indigo-900 shadow-brutalist transform rotate-1 p-12 text-center">
-            <h2 className="text-4xl md:text-5xl font-black text-white mb-8 transform -rotate-1">
-              OUR MISSION
-            </h2>
-            <p className="text-xl md:text-2xl font-bold text-white mb-8 max-w-4xl mx-auto leading-relaxed">
-              Make geospatial data generation as creative and intuitive as the apps you're building
-            </p>
-            <div className="bg-white border-4 border-indigo-900 p-6 transform -rotate-1 max-w-3xl mx-auto">
-              <p className="text-xl font-black text-indigo-900 mb-4">
-                "Stop waiting for data. Start building with confidence."
-              </p>
-              <p className="text-lg font-bold text-indigo-700">
-                We believe that creating test data should be creative, not painful.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* How It Works */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-black text-indigo-900 mb-16 text-center uppercase tracking-tight">
-            <span className="inline-block transform -rotate-1 border-b-8 border-amber-500 pb-2">
-              How It Works
-            </span>
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-white border-8 border-amber-500 shadow-brutalist transform rotate-1 p-6 text-center">
-              <div className="text-6xl mb-4">🗺️</div>
-              <h3 className="text-xl font-black text-amber-600 mb-3">1. NAVIGATE</h3>
-              <p className="text-lg font-bold text-gray-700">Find any area on the interactive map</p>
-            </div>
-            
-            <div className="bg-white border-8 border-orange-500 shadow-brutalist transform -rotate-1 p-6 text-center">
-              <div className="text-6xl mb-4">🎯</div>
-              <h3 className="text-xl font-black text-orange-600 mb-3">2. CONFIGURE</h3>
-              <p className="text-lg font-bold text-gray-700">Define geometry types and custom attributes</p>
-            </div>
-            
-            <div className="bg-white border-8 border-red-500 shadow-brutalist transform rotate-1 p-6 text-center">
-              <div className="text-6xl mb-4">⚡</div>
-              <h3 className="text-xl font-black text-red-600 mb-3">3. GENERATE</h3>
-              <p className="text-lg font-bold text-gray-700">Create synthetic features with one click</p>
-            </div>
-            
-            <div className="bg-white border-8 border-green-500 shadow-brutalist transform -rotate-1 p-6 text-center">
-              <div className="text-6xl mb-4">🎉</div>
-              <h3 className="text-xl font-black text-green-600 mb-3">4. EXPORT</h3>
-              <p className="text-lg font-bold text-gray-700">Download and use immediately in your app</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  step: '01',
+                  title: 'Navigate',
+                  body: 'Find any area on the interactive map and pan or zoom to your target region.',
+                },
+                {
+                  step: '02',
+                  title: 'Configure',
+                  body: 'Choose geometry type, feature count, and define custom attribute schemas.',
+                },
+                {
+                  step: '03',
+                  title: 'Generate',
+                  body: 'Click generate. Features appear on the map immediately for review.',
+                },
+                {
+                  step: '04',
+                  title: 'Export',
+                  body: 'Download as GeoJSON or Shapefile ZIP and use immediately in your app.',
+                },
+              ].map(({ step, title, body }) => (
+                <div key={step} className="bg-white border border-slate-200 p-6">
+                  <div className="text-3xl font-black text-slate-200 mb-4">{step}</div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">{title}</h3>
+                  <p className="text-slate-500 text-sm leading-relaxed">{body}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
         {/* Values */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto bg-gradient-to-br from-gray-50 to-indigo-50">
-          <h2 className="text-4xl md:text-5xl font-black text-indigo-900 mb-16 text-center uppercase tracking-tight">
-            <span className="inline-block transform rotate-1 border-b-8 border-pink-500 pb-2">
-              Our Values
-            </span>
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div className="space-y-8">
-              <div className="bg-white border-8 border-pink-400 shadow-brutalist transform -rotate-1 p-6">
-                <h3 className="text-2xl font-black text-pink-600 mb-4">DEVELOPER FIRST</h3>
-                <p className="text-lg font-bold text-gray-700">
-                  Built by developers who understand the real pain points of geospatial development.
-                </p>
+        <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <div className="mb-12">
+            <span className="text-xs font-bold uppercase tracking-widest text-indigo-500">Principles</span>
+            <h2 className="mt-2 text-3xl font-black text-slate-900">What guides the project</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              {
+                title: 'Developer first',
+                body: 'Built by developers who know the real pain points of working with geospatial data in the absence of suitable test data.',
+              },
+              {
+                title: 'Open source',
+                body: 'Community-driven. The full source is on GitHub and contributions are welcome.',
+              },
+              {
+                title: 'Privacy by design',
+                body: 'All generation happens in the browser. No data leaves your machine. No API key, no account, no telemetry.',
+              },
+              {
+                title: 'Honest about limitations',
+                body: 'Data is synthetic and suitable for testing, demos, and development — not inference or analysis against real-world patterns.',
+              },
+            ].map(({ title, body }) => (
+              <div key={title} className="border border-slate-200 p-6">
+                <h3 className="text-lg font-bold text-slate-900 mb-2">{title}</h3>
+                <p className="text-slate-500 leading-relaxed">{body}</p>
               </div>
-              
-              <div className="bg-white border-8 border-blue-400 shadow-brutalist transform rotate-1 p-6">
-                <h3 className="text-2xl font-black text-blue-600 mb-4">OPEN SOURCE</h3>
-                <p className="text-lg font-bold text-gray-700">
-                  Community-driven development with transparency and collaboration at the core.
-                </p>
-              </div>
-            </div>
-            
-            <div className="space-y-8">
-              <div className="bg-white border-8 border-yellow-400 shadow-brutalist transform rotate-1 p-6">
-                <h3 className="text-2xl font-black text-yellow-600 mb-4">CREATIVE FOCUS</h3>
-                <p className="text-lg font-bold text-gray-700">
-                  Making data generation a creative, enjoyable process rather than a tedious chore.
-                </p>
-              </div>
-              
-              <div className="bg-white border-8 border-green-400 shadow-brutalist transform -rotate-1 p-6">
-                <h3 className="text-2xl font-black text-green-600 mb-4">PRIVACY RESPECT</h3>
-                <p className="text-lg font-bold text-gray-700">
-                  Browser-based generation keeps prompts and outputs out of a backend service.
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
-        {/* Call to Action */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <div className="bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 border-8 border-cyan-900 shadow-brutalist transform -rotate-1 p-12 text-center">
-            <h2 className="text-4xl md:text-5xl font-black text-white mb-8 transform rotate-1">
-              Ready to Generate?
-            </h2>
-            <p className="text-xl md:text-2xl font-bold text-white mb-12 max-w-3xl mx-auto">
-              Join the developers who've stopped waiting for data and started building with confidence
+        {/* CTA */}
+        <section className="bg-slate-950 py-20 px-4 sm:px-6 lg:px-8 text-center">
+          <div className="max-w-xl mx-auto">
+            <h2 className="text-3xl font-black text-white mb-4">Try it now</h2>
+            <p className="text-slate-400 mb-8">
+              Generate a synthetic dataset in under two minutes.
             </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <Link 
-                href="/generate" 
-                className="inline-block py-5 px-12 bg-white text-cyan-900 text-xl font-black uppercase tracking-wider border-4 border-cyan-900 shadow-brutalist hover:translate-y-[-4px] transition-transform"
-              >
-                Try Geomockery Now
-              </Link>
-              <a 
-                href="https://github.com/rgdonohue/geomockery" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-block py-5 px-12 bg-cyan-900 text-white text-xl font-black uppercase tracking-wider border-4 border-white shadow-brutalist hover:translate-y-[-4px] transition-transform"
-              >
-                View on GitHub
-              </a>
-            </div>
+            <Link
+              href="/generate"
+              className="inline-flex items-center justify-center px-8 py-3.5 bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition-colors"
+            >
+              Open the generator
+            </Link>
           </div>
         </section>
       </main>
-      
+
       {/* Footer */}
-      <footer className="bg-indigo-900 text-white py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="flex items-center justify-center mb-6">
-            <div className="relative h-12 w-12 mr-3 transform -rotate-3">
+      <footer className="bg-slate-950 text-slate-400 py-12 px-4 sm:px-6 lg:px-8 border-t border-slate-800">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8">
+          <div>
+            <div className="flex items-center gap-2.5 mb-3">
               <Image
                 src={withBasePath('/logo.svg')}
                 alt="Geomockery Logo"
-                width={48}
-                height={48}
-                className="drop-shadow-md"
+                width={28}
+                height={28}
+                className="opacity-80"
               />
+              <span className="text-base font-black">
+                <span className="text-white">GEO</span>
+                <span className="text-pink-400">MOCKERY</span>
+              </span>
             </div>
-            <div className="transform rotate-1">
-              <span className="text-2xl font-black tracking-tight text-white">GEO</span>
-              <span className="text-2xl font-black tracking-tight text-pink-400">MOCKERY</span>
-            </div>
-          </div>
-          <p className="text-indigo-200 font-medium mb-8">
-            Made with passion by developers who got tired of waiting for data
-          </p>
-          <div className="flex justify-center space-x-8">
-            <Link href="/" className="hover:text-pink-400 font-medium">Home</Link>
-            <Link href="/generate" className="hover:text-pink-400 font-medium">Generate</Link>
-            <a href="https://github.com/rgdonohue/geomockery" className="hover:text-pink-400 font-medium">GitHub</a>
-          </div>
-          <div className="mt-8 pt-8 border-t border-indigo-800">
-            <p className="text-indigo-300">
-              © {new Date().getFullYear()} Geomockery. Built with boldness and brutalist design.
+            <p className="text-sm text-slate-600 max-w-xs">
+              Synthetic geospatial data for testing, demos, and development.
             </p>
           </div>
+
+          <div className="flex gap-12 text-sm">
+            <div>
+              <p className="font-semibold text-slate-500 uppercase tracking-widest text-[10px] mb-3">Navigation</p>
+              <ul className="space-y-2">
+                <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
+                <li><Link href="/generate" className="hover:text-white transition-colors">Generate</Link></li>
+                <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-semibold text-slate-500 uppercase tracking-widest text-[10px] mb-3">Project</p>
+              <ul className="space-y-2">
+                <li>
+                  <a href="https://github.com/rgdonohue/geomockery" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">GitHub</a>
+                </li>
+                <li>
+                  <a href="https://github.com/rgdonohue/geomockery/issues" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Issues</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto mt-10 pt-8 border-t border-slate-800">
+          <p className="text-sm text-slate-700">© {new Date().getFullYear()} Geomockery. Synthetic data only.</p>
         </div>
       </footer>
     </>
   );
-} 
+}
