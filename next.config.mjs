@@ -4,7 +4,16 @@ const isProjectPagesBuild =
   process.env.GITHUB_ACTIONS === 'true' &&
   repository &&
   !repository.endsWith('.github.io');
-const basePath = isProjectPagesBuild ? `/${repository}` : '';
+
+// GitHub Pages project sites use /{repo} on *.github.io, but a custom apex domain
+// serves the same build at site root — use GITHUB_PAGES_BASE_PATH="" in CI for that.
+const explicitBase = process.env.GITHUB_PAGES_BASE_PATH;
+const basePath =
+  explicitBase !== undefined
+    ? explicitBase
+    : isProjectPagesBuild
+      ? `/${repository}`
+      : '';
 
 const nextConfig = {
   // Enable static export for GitHub Pages

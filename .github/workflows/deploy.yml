@@ -9,7 +9,10 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    
+    env:
+      # Root-relative export so https://geomockery.com/ (custom domain) loads assets correctly.
+      GITHUB_PAGES_BASE_PATH: ""
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
