@@ -6,11 +6,15 @@ import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import { withBasePath } from '@/lib/utils/basePath';
 
-export default function Header() {
+export default function Header({ variant = 'light' }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const dark = variant === 'dark';
 
   return (
-    <header className="bg-white border-b border-slate-200 z-50 relative">
+    <header className={dark
+      ? 'bg-slate-900 border-b border-slate-800 z-50 relative'
+      : 'bg-white border-b border-slate-200 z-50 relative'
+    }>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14">
           {/* Logo */}
@@ -25,16 +29,16 @@ export default function Header() {
               />
             </div>
             <span className="text-lg font-black tracking-tight">
-              <span className="text-indigo-900">GEO</span>
+              <span className={dark ? 'text-white' : 'text-indigo-900'}>GEO</span>
               <span className="text-pink-500">MOCKERY</span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
-            <NavLink href="/" exact>Home</NavLink>
-            <NavLink href="/generate">Generate</NavLink>
-            <NavLink href="/about">About</NavLink>
+            <NavLink href="/" exact dark={dark}>Home</NavLink>
+            <NavLink href="/generate" dark={dark}>Generate</NavLink>
+            <NavLink href="/about" dark={dark}>About</NavLink>
             <a
               href="https://github.com/rgdonohue/geomockery"
               target="_blank"
@@ -49,7 +53,7 @@ export default function Header() {
           <div className="md:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-slate-600 hover:text-slate-900"
+              className={`p-2 transition-colors ${dark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
               aria-label="Toggle menu"
             >
               {!mobileMenuOpen ? (
@@ -68,16 +72,16 @@ export default function Header() {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-100 bg-white">
+        <div className={`md:hidden border-t ${dark ? 'border-slate-800 bg-slate-900' : 'border-slate-100 bg-white'}`}>
           <div className="px-4 py-3 space-y-1">
-            <MobileNavLink href="/" exact>Home</MobileNavLink>
-            <MobileNavLink href="/generate">Generate</MobileNavLink>
-            <MobileNavLink href="/about">About</MobileNavLink>
+            <MobileNavLink href="/" exact dark={dark}>Home</MobileNavLink>
+            <MobileNavLink href="/generate" dark={dark}>Generate</MobileNavLink>
+            <MobileNavLink href="/about" dark={dark}>About</MobileNavLink>
             <a
               href="https://github.com/rgdonohue/geomockery"
               target="_blank"
               rel="noopener noreferrer"
-              className="block px-3 py-2 text-sm font-semibold text-indigo-600"
+              className={`block px-3 py-2 text-sm font-semibold ${dark ? 'text-indigo-400' : 'text-indigo-600'}`}
             >
               GitHub ↗
             </a>
@@ -88,7 +92,7 @@ export default function Header() {
   );
 }
 
-function NavLink({ href, exact, children }) {
+function NavLink({ href, exact, dark, children }) {
   const pathname = usePathname();
   const isActive = exact ? pathname === href : pathname.startsWith(href);
 
@@ -96,9 +100,13 @@ function NavLink({ href, exact, children }) {
     <Link
       href={href}
       className={`px-3 py-1.5 text-sm font-semibold transition-colors ${
-        isActive
-          ? 'text-indigo-600 bg-indigo-50'
-          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+        dark
+          ? isActive
+            ? 'text-indigo-400 bg-slate-800'
+            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+          : isActive
+            ? 'text-indigo-600 bg-indigo-50'
+            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
       }`}
     >
       {children}
@@ -106,17 +114,21 @@ function NavLink({ href, exact, children }) {
   );
 }
 
-function MobileNavLink({ href, exact, children }) {
+function MobileNavLink({ href, exact, dark, children }) {
   const pathname = usePathname();
   const isActive = exact ? pathname === href : pathname.startsWith(href);
 
   return (
     <Link
       href={href}
-      className={`block px-3 py-2 text-sm font-semibold ${
-        isActive
-          ? 'text-indigo-600 bg-indigo-50'
-          : 'text-slate-700 hover:bg-slate-50'
+      className={`block px-3 py-2 text-sm font-semibold transition-colors ${
+        dark
+          ? isActive
+            ? 'text-indigo-400 bg-slate-800'
+            : 'text-slate-400 hover:text-white hover:bg-slate-800'
+          : isActive
+            ? 'text-indigo-600 bg-indigo-50'
+            : 'text-slate-700 hover:bg-slate-50'
       }`}
     >
       {children}

@@ -221,7 +221,7 @@ export default function GeneratePage() {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
-      <Header />
+      <Header variant="dark" />
 
       <div className="flex flex-1 overflow-hidden">
         {/* Dark Sidebar */}
@@ -526,7 +526,7 @@ export default function GeneratePage() {
           </div>
 
           {/* Sticky bottom: generate + export */}
-          <div className="flex-shrink-0 border-t border-slate-800 bg-slate-900 p-5 space-y-3">
+          <div className="flex-shrink-0 border-t-2 border-indigo-600/40 bg-slate-900 p-5 space-y-3">
             {/* Summary line */}
             <div className="flex items-center justify-between text-xs text-slate-600">
               <span>{quantity} {geometryLabel} · {generationAreaSummary}</span>
@@ -540,7 +540,7 @@ export default function GeneratePage() {
             <button
               type="button"
               onClick={handleGenerate}
-              className="w-full py-3 bg-indigo-600 text-white font-bold text-sm tracking-wide hover:bg-indigo-500 transition-colors"
+              className="w-full py-3 bg-indigo-600 text-white font-bold text-sm tracking-wide hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-900/60"
             >
               Generate features
             </button>
@@ -623,8 +623,8 @@ export default function GeneratePage() {
 
           {/* Empty state overlay */}
           {!generatedFeatures && (
-            <div className="pointer-events-none absolute right-4 top-4 max-w-xs">
-              <div className="bg-slate-900/90 backdrop-blur-sm border border-slate-700/80 px-4 py-3">
+            <div className="pointer-events-none absolute right-4 top-4 max-w-[190px]">
+              <div className="bg-slate-900/90 backdrop-blur-sm border border-slate-700/80 px-3 py-2.5">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-400">
                   {mapEmptyState.eyebrow}
                 </span>
