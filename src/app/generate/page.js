@@ -220,14 +220,14 @@ export default function GeneratePage() {
         };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col min-h-screen md:h-screen md:overflow-hidden">
       <Header variant="dark" />
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-col md:flex-row flex-1 md:overflow-hidden">
         {/* Dark Sidebar */}
-        <aside className="w-80 xl:w-96 flex-shrink-0 bg-slate-900 flex flex-col border-r border-slate-800 overflow-hidden">
+        <aside className="w-full md:w-80 xl:w-96 flex-shrink-0 bg-slate-900 flex flex-col border-b md:border-b-0 md:border-r border-slate-800">
           {/* Scrollable controls area */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-6">
+          <div className="flex-1 md:overflow-y-auto p-5 space-y-6">
 
             {/* Page header */}
             <div>
@@ -618,7 +618,7 @@ export default function GeneratePage() {
         </aside>
 
         {/* Map area */}
-        <div className="flex-1 relative bg-slate-950">
+        <div className="relative bg-slate-950 h-[65vh] md:h-auto md:flex-1">
           <GenerateMap
             ref={generateMapRef}
             generationArea={generationArea}
