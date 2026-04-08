@@ -5,7 +5,7 @@ import Map from 'ol/Map';
 import View from 'ol/View';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
-import { OSM, Vector as VectorSource } from 'ol/source';
+import { XYZ, Vector as VectorSource } from 'ol/source';
 import { Draw, Modify, Snap } from 'ol/interaction';
 import { GeoJSON } from 'ol/format';
 import * as olControl from 'ol/control';
@@ -28,10 +28,20 @@ const GenerateMap = forwardRef(({ generationArea, onDrawingComplete, uploadedGeo
   useEffect(() => {
     if (map) return;
 
-    // Base layers
+    // Base layers — CARTO Dark Matter
     const osm = new TileLayer({
-      source: new OSM(),
-      visible: true
+      source: new XYZ({
+        urls: [
+          'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+          'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+          'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+          'https://d.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
+        ],
+        attributions:
+          '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
+        maxZoom: 19,
+      }),
+      visible: true,
     });
 
     // Vector layer for generated features
@@ -44,31 +54,18 @@ const GenerateMap = forwardRef(({ generationArea, onDrawingComplete, uploadedGeo
           return new Style({
             image: new CircleStyle({
               radius: 6,
-              fill: new Fill({
-                color: '#4338ca'
-              }),
-              stroke: new Stroke({
-                color: '#312e81',
-                width: 2
-              })
+              fill: new Fill({ color: '#818cf8' }),
+              stroke: new Stroke({ color: '#fff', width: 1.5 })
             })
           });
         } else if (geomType === 'LineString') {
           return new Style({
-            stroke: new Stroke({
-              color: '#4338ca',
-              width: 2
-            })
+            stroke: new Stroke({ color: '#818cf8', width: 2.5 })
           });
         } else {
           return new Style({
-            fill: new Fill({
-              color: 'rgba(67, 56, 202, 0.3)'
-            }),
-            stroke: new Stroke({
-              color: '#312e81',
-              width: 2
-            })
+            fill: new Fill({ color: 'rgba(129, 140, 248, 0.25)' }),
+            stroke: new Stroke({ color: '#818cf8', width: 2 })
           });
         }
       }
@@ -104,7 +101,7 @@ const GenerateMap = forwardRef(({ generationArea, onDrawingComplete, uploadedGeo
       controls: olControl.defaults({
         zoom: true,
         rotate: false,
-        attribution: false
+        attribution: true,
       })
     });
 

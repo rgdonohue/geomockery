@@ -623,7 +623,7 @@ export default function GeneratePage() {
 
           {/* Empty state overlay */}
           {!generatedFeatures && (
-            <div className="pointer-events-none absolute left-4 top-4 max-w-xs">
+            <div className="pointer-events-none absolute right-4 top-4 max-w-xs">
               <div className="bg-slate-900/90 backdrop-blur-sm border border-slate-700/80 px-4 py-3">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-indigo-400">
                   {mapEmptyState.eyebrow}
