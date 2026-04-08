@@ -6,107 +6,6 @@ import Header from '@/components/layout/Header';
 import { withBasePath } from '@/lib/utils/basePath';
 
 // Hardcoded point clusters that look like a real generated dataset
-const DEMO_POINTS = [
-  // Cluster A — dense urban area
-  [605,262],[615,275],[623,263],[612,288],[621,300],[631,288],
-  [598,278],[608,292],[617,306],[626,293],[635,283],[643,296],
-  [628,308],[638,320],[618,313],[627,325],[601,306],[610,316],
-  [634,268],[642,280],[650,268],[641,258],[649,273],[658,263],
-  [651,281],[660,296],[619,250],[628,263],[637,250],[646,266],
-  [655,256],[664,270],[604,266],[613,250],[622,238],
-  // Cluster B — secondary area
-  [808,258],[817,272],[825,260],[834,275],[842,262],[850,278],
-  [820,285],[829,298],[837,285],[845,300],[853,288],[861,275],
-  [815,308],[823,296],[831,310],[839,298],[847,313],[855,303],
-  [863,290],[870,308],
-  // Scattered outliers
-  [340,182],[382,418],[462,328],[520,448],[902,178],
-  [488,202],[420,380],[568,290],[740,422],[778,182],
-];
-
-function AppIllustration() {
-  return (
-    <svg
-      viewBox="0 0 1000 563"
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-full block"
-      style={{ background: '#0f172a' }}
-    >
-      {/* Sidebar background */}
-      <rect x="0" y="0" width="265" height="563" fill="#1e293b" />
-      {/* Sidebar border */}
-      <line x1="265" y1="0" x2="265" y2="563" stroke="#334155" strokeWidth="1" />
-
-      {/* Sidebar — label eyebrow */}
-      <text x="24" y="38" fill="#6366f1" fontSize="8" fontWeight="700" letterSpacing="2" fontFamily="monospace">GEOMOCKERY</text>
-      <text x="24" y="58" fill="#f1f5f9" fontSize="16" fontWeight="800" fontFamily="sans-serif">Generate dataset</text>
-      <text x="24" y="76" fill="#64748b" fontSize="10" fontFamily="sans-serif">Synthetic features for testing &amp; demos.</text>
-
-      <line x1="24" y1="94" x2="241" y2="94" stroke="#334155" strokeWidth="1" />
-
-      {/* GEOMETRY TYPE */}
-      <text x="24" y="116" fill="#64748b" fontSize="8" fontWeight="700" letterSpacing="2" fontFamily="monospace">GEOMETRY TYPE</text>
-      <rect x="24" y="124" width="72" height="30" fill="#4f46e5" />
-      <text x="60" y="143" fill="white" fontSize="11" fontWeight="600" textAnchor="middle" fontFamily="sans-serif">Points</text>
-      <rect x="102" y="124" width="72" height="30" fill="#1e293b" stroke="#475569" strokeWidth="1" />
-      <text x="138" y="143" fill="#94a3b8" fontSize="11" fontWeight="500" textAnchor="middle" fontFamily="sans-serif">Lines</text>
-      <rect x="180" y="124" width="72" height="30" fill="#1e293b" stroke="#475569" strokeWidth="1" />
-      <text x="216" y="143" fill="#94a3b8" fontSize="11" fontWeight="500" textAnchor="middle" fontFamily="sans-serif">Polygons</text>
-
-      {/* QUANTITY */}
-      <text x="24" y="178" fill="#64748b" fontSize="8" fontWeight="700" letterSpacing="2" fontFamily="monospace">QUANTITY</text>
-      <rect x="24" y="186" width="217" height="30" fill="#0f172a" stroke="#334155" strokeWidth="1" />
-      <text x="36" y="206" fill="#e2e8f0" fontSize="13" fontFamily="monospace">500</text>
-
-      {/* GENERATION AREA */}
-      <text x="24" y="240" fill="#64748b" fontSize="8" fontWeight="700" letterSpacing="2" fontFamily="monospace">GENERATION AREA</text>
-      <rect x="24" y="248" width="217" height="46" fill="#1e1b4b" stroke="#4f46e5" strokeWidth="1" />
-      <rect x="36" y="260" width="18" height="18" fill="#4f46e5" />
-      <text x="45" y="273" fill="white" fontSize="9" fontWeight="700" textAnchor="middle" fontFamily="monospace">1</text>
-      <text x="62" y="272" fill="#e2e8f0" fontSize="11" fontWeight="600" fontFamily="sans-serif">Map viewport</text>
-      <rect x="140" y="263" width="44" height="13" fill="#312e81" />
-      <text x="162" y="273" fill="#a5b4fc" fontSize="8" fontWeight="700" textAnchor="middle" letterSpacing="1" fontFamily="monospace">DEFAULT</text>
-      <text x="62" y="286" fill="#64748b" fontSize="9" fontFamily="sans-serif">Pan or zoom to set the extent.</text>
-
-      {/* Summary + generate button area */}
-      <line x1="0" y1="505" x2="265" y2="505" stroke="#4f46e5" strokeWidth="2" strokeOpacity="0.5" />
-      <text x="24" y="526" fill="#64748b" fontSize="9" fontFamily="monospace">500 points · map viewport</text>
-      <rect x="24" y="534" width="217" height="18" fill="#4f46e5" opacity="0.15" />
-      <rect x="24" y="536" width="217" height="16" fill="#4f46e5" />
-      <text x="132" y="548" fill="white" fontSize="10" fontWeight="700" textAnchor="middle" letterSpacing="0.5" fontFamily="sans-serif">Generate features</text>
-
-      {/* Map area — subtle grid */}
-      {[1,2,3].map(i => (
-        <line key={`h${i}`} x1="265" y1={i * 140} x2="1000" y2={i * 140} stroke="#1e293b" strokeWidth="1" />
-      ))}
-      {[1,2,3,4,5].map(i => (
-        <line key={`v${i}`} x1={265 + i * 147} x2={265 + i * 147} y1="0" y2="563" stroke="#1e293b" strokeWidth="1" />
-      ))}
-
-      {/* Generated points */}
-      {DEMO_POINTS.map(([x, y], i) => (
-        <circle
-          key={i}
-          cx={x}
-          cy={y}
-          r={i % 7 === 0 ? 5 : i % 3 === 0 ? 4.5 : 4}
-          fill="#818cf8"
-          fillOpacity={0.75 + (i % 4) * 0.06}
-          stroke="white"
-          strokeWidth="1"
-          strokeOpacity="0.5"
-        />
-      ))}
-
-      {/* Stats overlay bottom-right */}
-      <rect x="842" y="495" width="148" height="54" fill="#0f172a" fillOpacity="0.92" stroke="#334155" strokeWidth="1" />
-      <text x="856" y="514" fill="#64748b" fontSize="7" fontWeight="700" letterSpacing="2" fontFamily="monospace">FEATURES</text>
-      <text x="856" y="537" fill="white" fontSize="24" fontWeight="800" fontFamily="sans-serif">500</text>
-      <text x="916" y="514" fill="#64748b" fontSize="7" fontWeight="700" letterSpacing="2" fontFamily="monospace">TYPE</text>
-      <text x="916" y="537" fill="white" fontSize="24" fontWeight="800" fontFamily="sans-serif">pts</text>
-    </svg>
-  );
-}
 
 export default function HomePage() {
   return (
@@ -147,10 +46,16 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* App illustration */}
+          {/* App screenshot */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-0">
-            <div className="border-t border-l border-r border-slate-800 overflow-hidden max-w-5xl">
-              <AppIllustration />
+            <div className="border-t border-l border-r border-slate-800 overflow-hidden max-w-5xl relative aspect-video">
+              <Image
+                src={withBasePath('/images/screenshot.png')}
+                alt="Geomockery — 50 synthetic points generated over Spain on a dark map"
+                fill
+                className="object-cover object-top"
+                priority
+              />
             </div>
           </div>
         </section>
