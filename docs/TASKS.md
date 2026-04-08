@@ -1,5 +1,7 @@
 # Geomockery Project Tasks
 
+> Status note (2026-04-08): This task list is historical planning context and is not the current source of truth. Use `docs/AUDIT_REPORT.md` for the current audited repo state.
+
 ## Project Status Overview
 - **Total Tasks**: 47 tasks across 8 major categories
 - **Completed**: 25 tasks (53%)

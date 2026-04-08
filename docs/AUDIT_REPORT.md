@@ -1,170 +1,127 @@
 # Geomockery Launch Readiness Audit Report
 
-## Context and methodology
+## Context and method
 
-This report documents a source-level audit of the Geomockery repository. Findings are grounded in the current codebase: `package.json`, `package-lock.json`, `next.config.mjs`, application source under `src/`, documentation under `docs/` and `README.md`, and the GitHub Actions workflow. Where runtime behavior (browser, GitHub Pages) was not exercised in this pass, items are labeled **untested**.
+This audit was refreshed on **2026-04-08** against the current repository state. Findings are grounded in the files currently present under `src/`, repo config, workflow config, and the current documentation set.
 
-**Build verification:** On 2026-03-30, `npm ci` followed by `npm run build` completed successfully, producing a static export (Next.js reported static prerender for all routes and export steps finished without error).
+Validation performed in this pass:
+
+- inspected current source, config, and docs
+- ran a clean local `npm run build` successfully on **2026-04-08**
+- ran a GitHub Pages-style build successfully with `GITHUB_ACTIONS=true` and `GITHUB_REPOSITORY=rgdonohue/geomockery`
+- confirmed static export output for `/`, `/about`, and `/generate`
+- confirmed the Pages-style export prefixes routes and public assets with `/geomockery/`
+
+Not exercised in this pass:
+
+- browser-based happy path interactions
+- GitHub Pages deployment on a live URL
+- Shapefile interoperability in external GIS software
+- mobile or small-screen behavior
+
+**Repo status:** **working with caveats**
+
+The codebase is past the initial truth pass, but not yet at launch readiness. The core browser demo is wired and the static build works, while runtime trust gaps, stale docs, and deployment validation are still open.
 
 ---
 
 ## Section 1 — Repo inventory
 
-**Stack (from `package.json` and `next.config.mjs`):** Next.js **15.2.3**, React **19**, static export (`output: 'export'`), TailwindCSS 3.x, OpenLayers (`ol`), Turf (`@turf/turf`).
-
-**Source scale:** JavaScript under `src/` totals **5,275 lines** (all `*.js` / `*.jsx` files, `wc` aggregate).
-
-**Primary modules (line counts are current):**
-
-| Area | Path | Lines | Role |
-|------|------|------:|------|
-| Generation | `src/lib/geo/generators.js` | 271 | Point, line, polygon generation via Turf |
-| Export | `src/lib/geo/exporters.js` | 95 | GeoJSON, Shapefile (`@mapbox/shp-write`), GeoPackage (throws) |
-| “AI” / prompts | `src/lib/ai/aiProcessor.js` | 463 | Keyword/template-driven parsing and defaults (client-side) |
-| Geo prompt helpers | `src/lib/ai/geoIntelligence.js` | 372 | Pattern lists and city bounds (no network LLM) |
-| Map UI | `src/app/generate/components/GenerateMap.js` | 424 | OpenLayers: draw, generate, preview |
-| Generate page | `src/app/generate/page.js` | 726 | Main orchestration |
-| Upload | `src/app/generate/components/GeoJSONUploader.js` | 296 | File / URL GeoJSON |
-
-**Config and automation:** `next.config.mjs` (static export, image unoptimized, path aliases), `tailwind.config.js`, two PostCSS entrypoints (see Section 4), `.github/workflows/deploy.yml` (install, `npm run export`, upload `out/`, deploy to GitHub Pages on `main` push).
-
-**Empty or placeholder areas (verified on disk):**
-
-- `tests/` — subfolders `components`, `fixtures`, `lib`, `utils` exist; no test source files (only `.DS_Store` under `tests/`).
-- `src/components/ui/` — empty directory.
-- `src/data/examples/` — empty directory.
-- `docs/api/` — empty directory.
-
-**Broken / risky routes:**
-
-- `src/app/reasoning/page.js` — `fetch('/api/reasoning', …)`; there is **no** `src/app/api` route in the repo (glob confirms zero API route files). Static export has no server at runtime for this path.
-
-**Status label for repo health:** **working with caveats** (core app builds; reasoning page and hook exports are structurally problematic — see below).
+| Area | Current paths | Notes |
+|------|---------------|-------|
+| App shell | `src/app/layout.js`, `src/components/layout/Header.js`, `src/components/layout/Layout.js` | Next.js App Router app with shared layout components |
+| Routes | `src/app/page.js`, `src/app/generate/page.js`, `src/app/about/page.js` | Three user-facing routes; no API routes in the current tree |
+| Generation engine | `src/lib/geo/generators.js` | Point, line, and polygon generation with Turf helpers |
+| Export | `src/lib/geo/exporters.js` | GeoJSON and Shapefile wiring; GeoPackage path still throws |
+| Prompt assistance | `src/lib/ai/aiProcessor.js`, `src/lib/ai/geoIntelligence.js`, `src/app/generate/components/AiConversation.js` | Rule-based prompt parsing and map suggestions; no remote model |
+| Map + boundary tools | `src/app/generate/components/GenerateMap.js`, `src/app/generate/components/GeoJSONUploader.js` | OpenLayers preview, drawing, file upload, URL import |
+| Attribute editing | `src/app/generate/components/FeatureAttributeEditor.js`, `src/data/schemas/attributeSchema.js` | Configurable attribute schema editor and schema defaults |
+| Hooks | `src/hooks/useExport.js`, `src/hooks/useAiProcessor.js`, `src/hooks/index.js` | Small helper hooks; current generate page manages most state directly |
+| Config | `package.json`, `next.config.mjs`, `jsconfig.json`, `postcss.config.js`, `tailwind.config.js`, `.github/workflows/deploy.yml` | Static export, path aliases, Tailwind/PostCSS, GitHub Pages workflow |
+| Docs | `README.md`, `docs/AUDIT_REPORT.md`, `docs/ARCHITECTURE_DECISION_MEMO.md`, `docs/geomockery-revival-roadmap.md`, `docs/DEV_STATUS.md`, `docs/TASKS.md`, `docs/PRD.md` | README and roadmap are the most useful current-facing docs |
+| Tests | `tests/` | No test source files found in the current repo |
 
 ---
 
 ## Section 2 — Documentation contradictions
 
-Contrasts are between **documented claims** and **observable implementation**.
+The current `README.md` is mostly aligned with the code. The main drift is now in older planning and status docs.
 
-| Topic | Docs / README claim | Code reality | Status |
-|--------|----------------------|--------------|--------|
-| “AI-powered” / intelligence | README and branding describe AI-powered generation and smart distribution | `aiProcessor.js` and `geoIntelligence.js` use **templates, keywords, and regex-style matching**; **no LLM API**, no embeddings, no remote inference | **working with caveats** (rule-based only) |
-| GeoPackage | README lists GeoPackage among export formats | `featuresAsGeoPackage` in `exporters.js` **throws** with a fixed message; UI labels GeoPackage as coming soon | **broken** as an export feature |
-| Realistic clustering / street-following | README: e.g. coffee shops “distributed realistically,” “delivery routes that follow actual street patterns” | `generators.js`: points are **uniform random** in bbox (with optional polygon constraint); lines are **two-point segments** from `turf.destination`; polygons are **roughly circular** with vertex jitter | **working with caveats** (marketing oversells geometry) |
-| DEV_STATUS “90% MVP,” “1–2 weeks” | `docs/DEV_STATUS.md` dated **December 2024** | Project still has known gaps (this audit); timeline claim is **stale** | Documentation **out of date** |
-| Architecture diagram `components/ui/` | `README.md` tree lists `components/ui/` | Directory **exists but is empty** | **broken** (diagram implies components that are not present) |
-| 50,000+ features “efficiently” | README performance bullet | Generation is a **single-threaded loop** in the client; no Web Workers in the hot path; **no benchmark evidence** in repo | **untested** at scale |
-| Responsive / mobile | DEV_STATUS marks responsive design complete | **No automated or manual browser verification** in this audit | **untested** |
-| Shapefile “fully functional” | DEV_STATUS | Implementation calls `@mapbox/shp-write` `zip()`; **output correctness not validated** against desktop GIS in this pass | **working with caveats** |
+| Topic | Current evidence | Status |
+|------|------------------|--------|
+| “AI-powered” positioning in older docs | `docs/DEV_STATUS.md` and `docs/PRD.md` still describe AI-powered generation, while `README.md` now correctly states there is no server and no LLM and `src/lib/ai/aiProcessor.js` is keyword/template-driven | broken |
+| Near-complete MVP claims | `docs/DEV_STATUS.md` says “90% Complete MVP” and “ready for user testing,” but the repo still has no tests, no verified deploy, and no recorded browser validation | broken |
+| Export support claims | `docs/PRD.md` still treats GeoPackage as part of core export support, while `src/lib/geo/exporters.js` throws immediately for GeoPackage and the UI disables it | broken |
+| “Realistic” generation language | Older docs describe realistic distributions and routing, while `src/lib/geo/generators.js` produces uniform random points, straight lines, and jittered polygons | working with caveats |
+| Existing audit report drift | The previous audit report was stale relative to the current tree; this refresh replaces that outdated view | working |
 
 ---
 
 ## Section 3 — Workflow truth table
 
-Statuses use the required labels: **working**, **working with caveats**, **broken**, **untested**. Line references point to the current files.
+Statuses use only the required labels: **working**, **working with caveats**, **broken**, **untested**.
 
 | Workflow | Status | Evidence | Notes | Priority |
 |----------|--------|----------|-------|----------|
-| Generate points | working with caveats | `generators.js` `generatePoint` ~7–50 | Uniform random in bounds; optional polygon filter; returns **null** after 100 failed attempts | P1 |
-| Generate lines | working with caveats | `generators.js` `generateLine` ~55–109 | Straight two-point lines; not graph routing | P1 |
-| Generate polygons | working with caveats | `generators.js` `generatePolygon` ~114–178 | Noisy circular-ish polygons; not cadastral realism | P1 |
-| Define boundary by drawing | working | `GenerateMap.js` ~120–163 | `ol/interaction/Draw`, polygon mode, GeoJSON to parent | P2 |
-| Define boundary by upload | working | `GeoJSONUploader.js` (296 lines) | Upload + URL import; JSON validation in component | P2 |
-| Configure parameters | working | `generate/page.js` ~14–30 | Geometry, quantity, line length, polygon area, attributes state | P2 |
-| Preview on map | working | `GenerateMap.js` ~196–329 | Features added to vector source after generation | P1 |
-| Export GeoJSON | working | `exporters.js` `exportAsGeoJSON` ~63–69 | Blob + `file-saver` | P1 |
-| Export Shapefile | working with caveats | `exporters.js` ~26–48, 74–81 | ZIP via `@mapbox/shp-write`; sync `zip()` call | P2 |
-| Export GeoPackage | broken | `exporters.js` ~55–58, 87–95 | Always throws before useful `.gpkg` bytes | P3 (defer) |
-| Reset / clear features | working | `generate/page.js` ~138–143, UI ~643+ | `handleClearFeatures` clears state and calls `clearFeatures` on map ref | P3 |
-| Production build / static export | working | Verified 2026-03-30: `npm ci` + `npm run build` | Clean compile and export; `out/` produced | P1 |
-| GitHub Pages deployment | untested | `.github/workflows/deploy.yml` | Workflow present; **no evidence in this audit** that a Pages deploy succeeded | P1 |
+| Generate point data | working with caveats | `src/lib/geo/generators.js` | Uniform random point generation inside bbox or constraining polygon; returns `null` after 100 failed attempts | high |
+| Generate line data | working with caveats | `src/lib/geo/generators.js` | Straight two-point lines with length bounds; not routed or street-aware | high |
+| Generate polygon data | working with caveats | `src/lib/geo/generators.js` | Jittered radial polygons; not parcel-like or topology-aware | high |
+| Define boundary by drawing | working with caveats | `src/app/generate/components/GenerateMap.js` | OpenLayers draw interaction is wired; browser interaction not manually exercised in this pass | high |
+| Define boundary by upload | working with caveats | `src/app/generate/components/GeoJSONUploader.js` | File import is wired; URL import is vulnerable to normal browser CORS limits | high |
+| Generate attributes | working with caveats | `src/lib/geo/generators.js`, `src/app/generate/components/FeatureAttributeEditor.js`, `src/lib/ai/aiProcessor.js` | Attribute values are random/template-driven; no relationship modeling or export-time schema validation | medium |
+| Configure generation parameters | working | `src/app/generate/page.js` | Geometry, quantity, line length, polygon area, export format, and attribute controls are present | medium |
+| Preview generated data on map | working with caveats | `src/app/generate/components/GenerateMap.js` | Generated features are added to an OpenLayers vector source; browser rendering not manually exercised in this pass | high |
+| Export GeoJSON | working with caveats | `src/lib/geo/exporters.js`, `src/app/generate/page.js` | Download wiring exists through `file-saver`; exported file not manually opened in this pass | high |
+| Export Shapefile | working with caveats | `src/lib/geo/exporters.js`, `src/app/generate/page.js` | ZIP export wiring exists through `@mapbox/shp-write`; external GIS interoperability is still untested | high |
+| Export GeoPackage | broken | `src/lib/geo/exporters.js`, `src/app/generate/page.js` | Function throws immediately and UI keeps the option disabled | low |
+| Reset / clear | working | `src/app/generate/page.js`, `src/app/generate/components/GenerateMap.js` | UI clears generated state and the map feature source | low |
+| Build / static export | working | clean `npm run build` on 2026-04-08 | Build completed successfully and exported `/`, `/about`, and `/generate` without relying on external font fetches | high |
+| Deployment path | working with caveats | `.github/workflows/deploy.yml`, `next.config.mjs`, Pages-style export verification | GitHub Actions project-Pages path prefixing is now validated locally, but no successful live deployment URL was verified in this pass | high |
+| Mobile or small-screen behavior | untested | responsive classes in `src/app/*.js` and `src/app/generate/page.js` | No manual browser check was performed in this pass | medium |
 
 ---
 
 ## Section 4 — Dependency and config risks
 
-**Unused or redundant dependencies (verified: no `import` in `src/` for these):**
-
-| Package | Declared in `package.json` | Notes |
-|---------|---------------------------|--------|
-| `shp-write` | `^0.3.2` | Deprecated meta-package; code imports **`@mapbox/shp-write`** only |
-| `shpjs` | `^6.1.0` | Zero imports in `src/` |
-| `@observablehq/plot` | `^0.6.17` | Zero imports in `src/` |
-| `d3-array` | `^3.2.4` | Zero imports in `src/` |
-| `@ngageoint/geopackage` | `^4.2.6` | Zero imports in `src/`; GeoPackage path does not use it |
-
-**Config conflicts:**
-
-- **Two PostCSS configs:** `postcss.config.js` (CommonJS, `tailwindcss` + `autoprefixer`) vs `postcss.config.mjs` (ESM, plugin `@tailwindcss/postcss`). **`@tailwindcss/postcss` is not listed in `package.json` dependencies.** Which file Next resolves can affect builds; current build succeeded with installed tree but this is **non-obvious and risky**.
-- **`tailwind.config.js` content paths** include `./src/pages/**/*` — there is **no `src/pages/`** (App Router only). Harmless for scanning but misleading.
-
-**Code issues:**
-
-- `src/hooks/index.js` — exports **named** hooks then re-exports `default` from the same modules; `useFeatureGeneration.js`, `useExport.js`, and `useAiProcessor.js` expose **only named exports**, so **default re-exports are invalid** if consumed.
-- `src/hooks/useFeatureGeneration.js` — calls `generatePoint` / `generateLine` / `generatePolygon` with a **single object argument**; actual functions expect **positional** `(bounds, attributes, …)`. The generate page does **not** use this hook (grep shows no `@/hooks` imports in `src/`), so this is **dead, inconsistent code**.
-- `random.js` defines `randomGenerator` and `createSeededRandom`, but `getRandomFloat` / `getRandomInt` / etc. use **`Math.random()`** only; generators do not use seeded RNG — **outputs are not reproducible** by seed.
-- `npm audit` after install reported **15** vulnerabilities (severities mixed); not triaged in this pass — treat as **dependency risk** until reviewed.
-
-**Status:** **working with caveats** (build passes; hygiene issues above).
+| Risk | Evidence | Status |
+|------|----------|--------|
+| GitHub Pages still needs live verification | `next.config.mjs` now applies a repo base path automatically for GitHub Actions project-Pages builds, and the exported HTML was verified locally; the remaining risk is live repo settings or Pages environment mismatch | working with caveats |
+| GeoPackage remains in the code surface even though it is disabled | `src/lib/geo/exporters.js`, `src/hooks/useExport.js`, and the generate page still carry GeoPackage branches even though the feature is explicitly unavailable | working with caveats |
+| Tailwind scans a non-existent `src/pages` path | `tailwind.config.js` still includes `./src/pages/**/*` even though the app uses only the App Router | working with caveats |
+| Browserslist data is stale | `npm run build` emitted a `caniuse-lite` update warning on 2026-04-08 | working with caveats |
+| Switching build modes in one checkout can dirty generated state | A plain build after a Pages-mode build hit `.next` state issues, while a clean checkout build succeeded | working with caveats |
+| Current package list is relatively lean | `package.json` now contains only the active runtime dependencies needed for the current app story; no obvious dead package set from the prior audit remains | working |
 
 ---
 
 ## Section 5 — Testing and quality gaps
 
-- **Automated tests:** **untested** as a capability — no test files under `tests/`, no Jest/Vitest/playwright config in repo root.
-- **Lint:** `package.json` has `"lint": "next lint"` but **no** `.eslintrc*` or `eslint.config.*` found — Next may use defaults only; **no custom quality bar**.
-- **Formatting:** No Prettier or editorconfig observed in audit — **no enforced style**.
-- **Generated output validation:** Features are not validated against a schema before export (structural checks are minimal).
-- **CI:** `.github/workflows/deploy.yml` runs **build/export only** — no lint, no test job.
-- **Accessibility:** No a11y test tooling or audit artifacts in repo — **untested**.
-- **Reproducibility:** Seeded helpers exist but are **not wired** — same settings do not guarantee same geometry.
+- **Automated tests:** **broken**. No unit, integration, or end-to-end test files were found.
+- **Linting:** **untested** as a quality gate. There is no standalone lint script in `package.json`, and no explicit ESLint config is present in the repo root.
+- **Generated output validation:** **broken**. Exporters serialize and download data, but there is no structural validation pass before export.
+- **Browser happy path:** **untested**. This pass did not manually confirm generate -> preview -> export through the browser UI.
+- **Deployment smoke test:** **working with caveats**. A Pages-style export was verified locally, but there is still no recorded successful public Pages check in this audit.
+- **Reproducibility:** **broken** for seeded use cases. `src/lib/utils/random.js` includes seed helpers, but the active generation helpers still use `Math.random()`.
+- **Mobile verification:** **untested**. Responsive classes are present, but no browser/device run was performed.
 
 ---
 
-## Section 6 — Launch blockers and recommended follow-ups
+## Section 6 — Launch blockers
 
-**Treat as must-fix before a credible public v0.1:**
+These are the smallest high-value items still separating the repo from a credible public v0.1.
 
-1. **Reasoning page vs static app:** `/reasoning` calls a non-existent API — remove, stub client-side, or document as non-functional.
-2. **Dependency bloat:** Remove or justify the five unused packages listed in Section 4.
-3. **PostCSS single source of truth:** Keep one config aligned with installed plugins (likely retain `postcss.config.js` unless migrating to Tailwind v4 toolchain).
-4. **Dead / broken hook surface:** Fix `src/hooks/index.js` and either repair or delete `useFeatureGeneration.js`.
-5. **Documentation honesty:** Update README (and related docs) to match rule-based prompts, geometry limitations, and GeoPackage status.
+1. **Browser validation is missing.** The core demo needs one recorded happy-path run through `/generate`: boundary selection, feature generation, preview, GeoJSON download, and Shapefile download.
+2. **Live deployment is still unverified.** The Pages export path issue is fixed and validated locally, but the public URL still needs one real deploy check.
+3. **Older docs still oversell the product.** `docs/DEV_STATUS.md` and `docs/PRD.md` still describe an AI-powered, near-complete MVP story that no longer matches the audited repo.
+4. **There is no smoke coverage around the demo.** At minimum, the repo needs a documented manual validation checklist or a lightweight automated smoke test for build plus one happy path.
+5. **Trust features remain incomplete.** Seeded reproducibility, generation summary metadata, and explicit synthetic-data labeling are still missing or only partially expressed in UI copy.
 
-**Verified in this audit:** production **build** is **working** (see Context).
-
-**Still untested here:** end-to-end **GitHub Pages** deploy, browser UX, Shapefile interoperability with external GIS.
-
-**Should-fix for credibility (post–must-fix):**
-
-- At least one smoke test for generation + GeoJSON export.
-- Optional: wire seed to RNG for reproducible demos.
-- Optional: metadata or disclaimer on exported files (synthetic data).
+**Not a blocker for v0.1 if the docs stay honest:** GeoPackage. The current README and UI already present it as unavailable, which is acceptable for a small public release.
 
 ---
 
 ## Section 7 — Architecture decision memo
 
-**Question:** Should Geomockery stay on the current **JavaScript / Next static client** stack, move to **Python**, or use a **hybrid**?
+See `docs/ARCHITECTURE_DECISION_MEMO.md`.
 
-**Recommendation: Keep JavaScript. Ship the current architecture.**
-
-| Factor | JavaScript (current) | Python | Hybrid |
-|--------|----------------------|--------|--------|
-| Delivery today | Core loop implemented; static hosting; **no server required** | Full rewrite of UI + generation | Two runtimes, integration cost |
-| Geospatial fit | Turf covers bbox, point-in-polygon, distance, area for current generators | Stronger for heavy topology / networks | Overkill for current scope |
-| Ops | GitHub Pages–friendly | Hosting + runtime for API | Highest operational surface |
-| Time to v0.1 | **Low** — fix docs, dead routes, deps, hooks | **High** | **Medium–high** |
-
-**Rationale:** Present generators are **random / template-driven** and do not require Python’s GIS stack. A Python rewrite **delays launch** without changing the user-visible story until product requirements demand richer geometry (e.g., network-constrained lines, parcel topology). If that arises later, a **backend service** can be added without prejudicing today’s static-first model.
-
----
-
-## Document control
-
-| Field | Value |
-|-------|--------|
-| Report | `docs/AUDIT_REPORT.md` |
-| Audit date | 2026-03-30 |
-| Related planning | `.cursor/plans/geomockery-audit-and-launch.md` (reference only; not modified as part of this deliverable) |
+**Current recommendation:** keep the current JavaScript, static-first architecture for v0.1 and harden the browser demo before considering Python or a hybrid backend.

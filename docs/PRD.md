@@ -1,6 +1,8 @@
 # Product Requirements Document: Geomockery
 **Version 1.0 | Date: December 2024**
 
+> Status note (2026-04-08): This document reflects an earlier product vision and is not the current source of truth. Use `README.md`, `docs/AUDIT_REPORT.md`, and `docs/ARCHITECTURE_DECISION_MEMO.md` for the current audited status.
+
 ## Executive Summary
 
 Geomockery is an AI-powered web application for generating realistic mock geospatial data for testing and development purposes. The tool addresses the critical need for developers, GIS professionals, and spatial data scientists to quickly create realistic test datasets without the complexity of manual data creation or the limitations of synthetic data generators.

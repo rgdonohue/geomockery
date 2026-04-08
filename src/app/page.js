@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
 import AiDemoSection from './components/AiDemoSection';
+import { withBasePath } from '@/lib/utils/basePath';
 
 export default function HomePage() {
   return (
@@ -49,7 +50,7 @@ export default function HomePage() {
             {/* Map Preview */}
             <div className="border-8 border-indigo-500 shadow-brutalist transform rotate-1 max-w-5xl mx-auto bg-gray-100 aspect-video relative overflow-hidden">
               <Image 
-                src="/images/app.png" 
+                src={withBasePath('/images/app.png')} 
                 alt="Geomockery app screenshot for generating synthetic geospatial data" 
                 fill
                 className="object-cover"
@@ -267,7 +268,7 @@ export default function HomePage() {
               <div className="flex items-center">
                 <div className="relative h-12 w-12 mr-3 transform -rotate-3">
                   <Image
-                    src="/logo.svg"
+                    src={withBasePath('/logo.svg')}
                     alt="Geomockery Logo"
                     width={48}
                     height={48}

@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import Header from '@/components/layout/Header';
+import { withBasePath } from '@/lib/utils/basePath';
 
 export default function AboutPage() {
   return (
@@ -272,7 +273,7 @@ export default function AboutPage() {
           <div className="flex items-center justify-center mb-6">
             <div className="relative h-12 w-12 mr-3 transform -rotate-3">
               <Image
-                src="/logo.svg"
+                src={withBasePath('/logo.svg')}
                 alt="Geomockery Logo"
                 width={48}
                 height={48}

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
+import { withBasePath } from '@/lib/utils/basePath';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -17,7 +18,7 @@ export default function Header() {
             <Link href="/" className="flex items-center">
               <div className="relative h-12 w-12 mr-3 transform -rotate-3">
                 <Image
-                  src="/logo.svg"
+                  src={withBasePath('/logo.svg')}
                   alt="Geomockery Logo"
                   width={48}
                   height={48}

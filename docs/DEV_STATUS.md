@@ -2,6 +2,8 @@
 **Date: December 2024**
 **Project: Geomockery - AI-Powered Geospatial Data Generation**
 
+> Status note (2026-04-08): This document is historical planning context and is not the current source of truth. Use `README.md`, `docs/AUDIT_REPORT.md`, and `docs/ARCHITECTURE_DECISION_MEMO.md` for the current audited status.
+
 ## 🎯 Executive Summary
 
 **Project Status: 90% Complete MVP**
