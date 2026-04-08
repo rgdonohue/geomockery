@@ -51,21 +51,29 @@ const GenerateMap = forwardRef(({ generationArea, onDrawingComplete, uploadedGeo
         const geomType = feature.getGeometry().getType();
         
         if (geomType === 'Point') {
-          return new Style({
-            image: new CircleStyle({
-              radius: 6,
-              fill: new Fill({ color: '#818cf8' }),
-              stroke: new Stroke({ color: '#fff', width: 1.5 })
-            })
-          });
+          // Glow halo + tight inner dot
+          return [
+            new Style({
+              image: new CircleStyle({
+                radius: 9,
+                fill: new Fill({ color: 'rgba(129, 140, 248, 0.12)' }),
+              })
+            }),
+            new Style({
+              image: new CircleStyle({
+                radius: 3.5,
+                fill: new Fill({ color: '#a5b4fc' }),
+              })
+            }),
+          ];
         } else if (geomType === 'LineString') {
           return new Style({
-            stroke: new Stroke({ color: '#818cf8', width: 2.5 })
+            stroke: new Stroke({ color: '#818cf8', width: 1.5, lineDash: undefined })
           });
         } else {
           return new Style({
-            fill: new Fill({ color: 'rgba(129, 140, 248, 0.25)' }),
-            stroke: new Stroke({ color: '#818cf8', width: 2 })
+            fill: new Fill({ color: 'rgba(129, 140, 248, 0.15)' }),
+            stroke: new Stroke({ color: '#a5b4fc', width: 1.5 })
           });
         }
       }
