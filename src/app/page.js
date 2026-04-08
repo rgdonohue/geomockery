@@ -234,12 +234,14 @@ export default function HomePage() {
                 body: 'Describe your dataset in plain text and let built-in keyword matching prefill geometry type, quantity, and attributes. No LLM — this is a basic helper still in development.',
               },
             ].map(({ icon, title, body }) => (
-              <div key={title} className="group">
-                <div className="w-11 h-11 bg-indigo-50 flex items-center justify-center mb-5 border border-indigo-100 group-hover:bg-indigo-100 transition-colors">
+              <div key={title} className="group flex gap-4">
+                <div className="w-11 h-11 flex-shrink-0 bg-indigo-50 flex items-center justify-center border border-indigo-100 group-hover:bg-indigo-100 transition-colors">
                   {icon}
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">{title}</h3>
-                <p className="text-slate-500 leading-relaxed">{body}</p>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-1">{title}</h3>
+                  <p className="text-slate-500 leading-relaxed">{body}</p>
+                </div>
               </div>
             ))}
           </div>
