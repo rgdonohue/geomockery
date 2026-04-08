@@ -412,9 +412,14 @@ export default function GeneratePage() {
                 onClick={() => setIsPromptPanelOpen(!isPromptPanelOpen)}
                 className="flex w-full items-center justify-between"
               >
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                  Prompt-assisted setup
-                </span>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                    Prompt-assisted setup
+                  </span>
+                  <span className="ml-2 text-[9px] border border-slate-700 px-1.5 py-0.5 text-slate-600 uppercase tracking-widest">
+                    experimental
+                  </span>
+                </div>
                 <span className="text-slate-600 text-sm">{isPromptPanelOpen ? '−' : '+'}</span>
               </button>
 

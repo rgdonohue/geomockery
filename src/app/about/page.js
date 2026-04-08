@@ -140,7 +140,7 @@ export default function AboutPage() {
               },
               {
                 title: 'Honest about limitations',
-                body: 'Data is synthetic and suitable for testing, demos, and development — not inference or analysis against real-world patterns.',
+                body: 'Data is synthetic — suitable for testing and demos, not real-world inference. The prompt-assisted setup uses built-in keyword matching, not an LLM, and is still being developed.',
               },
             ].map(({ title, body }) => (
               <div key={title} className="border border-slate-200 p-6">

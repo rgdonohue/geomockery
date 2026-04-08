@@ -231,7 +231,7 @@ export default function HomePage() {
                   </svg>
                 ),
                 title: 'Prompt-assisted setup',
-                body: 'Describe your dataset in plain text and let keyword matching suggest geometry type, quantity, and attributes.',
+                body: 'Describe your dataset in plain text and let built-in keyword matching prefill geometry type, quantity, and attributes. No LLM — this is a basic helper still in development.',
               },
             ].map(({ icon, title, body }) => (
               <div key={title} className="group">
