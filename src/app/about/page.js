@@ -102,7 +102,7 @@ export default function AboutPage() {
               ENTER GEOMOCKERY
             </h2>
             <p className="text-xl md:text-2xl font-bold text-green-700 max-w-4xl mx-auto leading-relaxed">
-              We built the geospatial data generator that actually understands what developers need
+              We built the geospatial data generator that fits how developers actually work
             </p>
           </div>
           
@@ -113,7 +113,7 @@ export default function AboutPage() {
               </div>
               <h3 className="text-2xl font-black text-green-600 mb-4 text-center">SPEED</h3>
               <p className="text-lg font-bold text-gray-700 text-center">
-                Generate realistic data in seconds, not weeks of waiting
+                Generate synthetic datasets in seconds, not weeks of waiting
               </p>
             </div>
             
@@ -123,7 +123,7 @@ export default function AboutPage() {
               </div>
               <h3 className="text-2xl font-black text-cyan-600 mb-4 text-center">PRECISION</h3>
               <p className="text-lg font-bold text-gray-700 text-center">
-                Custom-tailored data for your exact use case
+                Configurable geometry, attributes, and boundary for your specific needs
               </p>
             </div>
             
@@ -133,7 +133,7 @@ export default function AboutPage() {
               </div>
               <h3 className="text-2xl font-black text-purple-600 mb-4 text-center">PRIVACY</h3>
               <p className="text-lg font-bold text-gray-700 text-center">
-                100% privacy-safe with zero real-world data exposure
+                Browser-based generation with no remote model or server-side generation step
               </p>
             </div>
           </div>
@@ -183,7 +183,7 @@ export default function AboutPage() {
             <div className="bg-white border-8 border-red-500 shadow-brutalist transform rotate-1 p-6 text-center">
               <div className="text-6xl mb-4">⚡</div>
               <h3 className="text-xl font-black text-red-600 mb-3">3. GENERATE</h3>
-              <p className="text-lg font-bold text-gray-700">Create realistic features with one click</p>
+              <p className="text-lg font-bold text-gray-700">Create synthetic features with one click</p>
             </div>
             
             <div className="bg-white border-8 border-green-500 shadow-brutalist transform -rotate-1 p-6 text-center">
@@ -230,7 +230,7 @@ export default function AboutPage() {
               <div className="bg-white border-8 border-green-400 shadow-brutalist transform -rotate-1 p-6">
                 <h3 className="text-2xl font-black text-green-600 mb-4">PRIVACY RESPECT</h3>
                 <p className="text-lg font-bold text-gray-700">
-                  Zero real-world data collection - your privacy and your users' privacy matter.
+                  Browser-based generation keeps prompts and outputs out of a backend service.
                 </p>
               </div>
             </div>

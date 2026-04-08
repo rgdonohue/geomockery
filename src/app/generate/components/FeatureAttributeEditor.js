@@ -32,38 +32,6 @@ const ATTRIBUTE_TYPES = [
   }
 ];
 
-// Sample values for different attribute types (used for AI generation)
-const SAMPLE_VALUES = {
-  nominal: {
-    'land_use': ['residential', 'commercial', 'industrial', 'agricultural', 'recreational'],
-    'material': ['concrete', 'asphalt', 'gravel', 'soil', 'vegetation'],
-    'status': ['active', 'planned', 'under_construction', 'decommissioned'],
-    'ownership': ['public', 'private', 'government', 'corporate']
-  },
-  ordinal: {
-    'size': ['small', 'medium', 'large', 'extra_large'],
-    'priority': ['low', 'medium', 'high', 'critical'],
-    'condition': ['poor', 'fair', 'good', 'excellent'],
-    'risk': ['minimal', 'moderate', 'significant', 'severe']
-  },
-  quantitative: {
-    'area': { min: 0, max: 1000, unit: 'm²' },
-    'length': { min: 0, max: 500, unit: 'm' },
-    'density': { min: 0, max: 100, unit: 'per km²' },
-    'value': { min: 0, max: 1000000, unit: '$' }
-  },
-  temporal: {
-    'created_date': { start: '2010-01-01', end: 'present' },
-    'updated_date': { start: '2020-01-01', end: 'present' },
-    'scheduled_date': { start: '2023-01-01', end: '2025-12-31' }
-  },
-  identifier: {
-    'id': { prefix: 'ID-', digits: 6 },
-    'reference': { prefix: 'REF-', digits: 8 },
-    'code': { prefix: 'CODE-', digits: 4 }
-  }
-};
-
 /**
  * Component for creating and managing attributes for geospatial features
  */
@@ -223,17 +191,22 @@ export default function FeatureAttributeEditor({
   };
   
   return (
-    <div className="space-y-6 pb-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-black uppercase text-indigo-800">
-          Custom Attributes
-        </h3>
+    <div className="space-y-4 rounded-sm border border-slate-200 bg-slate-50/60 p-4">
+      <div className="flex justify-between items-start gap-4">
+        <div>
+          <h3 className="text-base font-bold text-indigo-900">
+            Custom attributes
+          </h3>
+          <p className="mt-1 text-sm text-slate-600">
+            Optional. Define the properties each generated {geometryType} feature should include.
+          </p>
+        </div>
         {!showAddForm && (
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => setShowAddForm(true)}
-              className="px-3 py-2 bg-green-600 hover:bg-green-500 text-white font-bold text-sm border-2 border-green-700 transform hover:translate-y-[-2px] transition-transform flex items-center"
+              className="px-3 py-2 bg-green-600 hover:bg-green-500 text-white font-medium text-sm border border-green-700 transition-colors flex items-center rounded-sm"
             >
               <PlusIcon className="w-4 h-4 mr-1" />
               Add Attribute
@@ -244,23 +217,25 @@ export default function FeatureAttributeEditor({
       
       {/* Attribute List */}
       {attributes.length > 0 ? (
-        <ul className="divide-y-2 divide-indigo-100 border-4 border-indigo-300 bg-white">
+        <ul className="space-y-3">
           {attributes.map((attribute, index) => (
-            <li key={index} className="p-3 hover:bg-indigo-50">
-              <div className="flex justify-between items-center">
+            <li key={index} className="border border-indigo-200 bg-white p-4 hover:bg-indigo-50/40">
+              <div className="flex justify-between items-start gap-4">
                 <div>
-                  <div className="flex items-center">
-                    <h4 className="font-bold text-indigo-900">
+                  <div className="flex items-center flex-wrap gap-2">
+                    <h4 className="font-semibold text-indigo-950">
                       {attribute.name}
                     </h4>
-                    <span className="ml-2 px-2 py-1 bg-indigo-100 text-indigo-800 text-xs font-bold rounded">
+                    <span className="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs font-medium rounded-sm">
                       {ATTRIBUTE_TYPES.find(t => t.id === attribute.type)?.name || attribute.type}
                     </span>
                   </div>
-                  <p className="text-sm text-indigo-600 mt-1">
-                    {attribute.description}
-                  </p>
-                  <div className="mt-1 text-xs text-indigo-500">
+                  {attribute.description && (
+                    <p className="text-sm text-indigo-700 mt-1">
+                      {attribute.description}
+                    </p>
+                  )}
+                  <div className="mt-2 text-xs text-slate-500">
                     {attribute.type === 'nominal' || attribute.type === 'ordinal' ? (
                       <span>Values: {attribute.values.join(', ')}</span>
                     ) : attribute.type === 'quantitative' ? (
@@ -272,18 +247,18 @@ export default function FeatureAttributeEditor({
                     ) : null}
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 shrink-0">
                   <button
                     type="button"
                     onClick={() => handleEditAttribute(index)}
-                    className="p-2 text-indigo-600 hover:text-indigo-800 font-medium border-2 border-indigo-300 hover:border-indigo-500 bg-white"
+                    className="px-3 py-2 text-indigo-700 hover:text-indigo-900 font-medium border border-indigo-200 hover:border-indigo-400 bg-white rounded-sm"
                   >
                     Edit
                   </button>
                   <button
                     type="button"
                     onClick={() => handleRemoveAttribute(index)}
-                    className="p-2 text-red-600 hover:text-red-800 border-2 border-red-300 hover:border-red-500 hover:bg-red-50"
+                    className="p-2 text-red-600 hover:text-red-800 border border-red-200 hover:border-red-400 hover:bg-red-50 rounded-sm"
                   >
                     <TrashIcon className="w-4 h-4" />
                   </button>
@@ -293,26 +268,36 @@ export default function FeatureAttributeEditor({
           ))}
         </ul>
       ) : (
-        <div className="border-4 border-dashed border-indigo-300 p-4 text-center bg-indigo-50">
-          <p className="text-indigo-500 font-bold">No custom attributes defined yet</p>
-          <p className="text-sm text-indigo-400 mt-1">
-            Add attributes to control what properties your generated features will have
+        <div className="border border-dashed border-indigo-300 p-5 text-center bg-slate-50">
+          <p className="text-indigo-900 font-medium">No custom attributes yet</p>
+          <p className="text-sm text-slate-500 mt-1">
+            Add fields like `name`, `status`, `rating`, or `opened_date` to shape the output dataset.
           </p>
+          {!showAddForm && (
+            <button
+              type="button"
+              onClick={() => setShowAddForm(true)}
+              className="mt-4 inline-flex items-center rounded-sm border border-indigo-200 bg-white px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50"
+            >
+              <PlusIcon className="w-4 h-4 mr-1" />
+              Add first attribute
+            </button>
+          )}
         </div>
       )}
       
       {/* Add/Edit Attribute Form */}
       {showAddForm && (
-        <div ref={formRef} className="mt-4 border-4 border-indigo-400 p-4 bg-indigo-50">
-          <h4 className="font-bold text-indigo-900 mb-4">
-            {editingIndex !== null ? 'Edit Attribute' : 'Add New Attribute'}
+        <div ref={formRef} className="mt-4 border border-indigo-200 p-4 bg-indigo-50">
+          <h4 className="font-semibold text-indigo-950 mb-4">
+            {editingIndex !== null ? 'Edit attribute' : 'Add attribute'}
           </h4>
           
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="attribute-name" className="block text-sm font-bold text-indigo-800">
+                <label htmlFor="attribute-name" className="block text-sm font-medium text-indigo-900">
                   Attribute Name
                 </label>
                 <input
@@ -320,20 +305,20 @@ export default function FeatureAttributeEditor({
                   id="attribute-name"
                   value={attributeName}
                   onChange={(e) => setAttributeName(e.target.value)}
-                  className="mt-1 block w-full border-2 border-indigo-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="mt-1 block w-full border border-indigo-200 p-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
                 />
               </div>
               
               <div>
-                <label htmlFor="attribute-type" className="block text-sm font-bold text-indigo-800">
+                <label htmlFor="attribute-type" className="block text-sm font-medium text-indigo-900">
                   Attribute Type
                 </label>
                 <select
                   id="attribute-type"
                   value={attributeType}
                   onChange={(e) => setAttributeType(e.target.value)}
-                  className="mt-1 block w-full border-2 border-indigo-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="mt-1 block w-full border border-indigo-200 p-2 focus:ring-indigo-500 focus:border-indigo-500"
                   required
                 >
                   {ATTRIBUTE_TYPES.map((type) => (
@@ -346,7 +331,7 @@ export default function FeatureAttributeEditor({
             </div>
             
             <div>
-              <label htmlFor="attribute-description" className="block text-sm font-bold text-indigo-800">
+              <label htmlFor="attribute-description" className="block text-sm font-medium text-indigo-900">
                 Description (optional)
               </label>
               <input
@@ -354,21 +339,21 @@ export default function FeatureAttributeEditor({
                 id="attribute-description"
                 value={attributeDescription}
                 onChange={(e) => setAttributeDescription(e.target.value)}
-                className="mt-1 block w-full border-2 border-indigo-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="mt-1 block w-full border border-indigo-200 p-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
             
             {/* Type-specific fields */}
             {(attributeType === 'nominal' || attributeType === 'ordinal') && (
               <div>
-                <label htmlFor="attribute-values" className="block text-sm font-bold text-indigo-800">
+                <label htmlFor="attribute-values" className="block text-sm font-medium text-indigo-900">
                   Possible Values (comma-separated)
                 </label>
                 <textarea
                   id="attribute-values"
                   value={attributeValues}
                   onChange={(e) => setAttributeValues(e.target.value)}
-                  className="mt-1 block w-full border-2 border-indigo-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="mt-1 block w-full border border-indigo-200 p-2 focus:ring-indigo-500 focus:border-indigo-500"
                   rows={3}
                   required
                   placeholder={attributeType === 'nominal' ? 'e.g. residential, commercial, industrial' : 'e.g. low, medium, high'}
@@ -380,7 +365,7 @@ export default function FeatureAttributeEditor({
             {attributeType === 'quantitative' && (
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label htmlFor="attribute-min" className="block text-sm font-bold text-indigo-800">
+                  <label htmlFor="attribute-min" className="block text-sm font-medium text-indigo-900">
                     Minimum Value
                   </label>
                   <input
@@ -388,13 +373,13 @@ export default function FeatureAttributeEditor({
                     id="attribute-min"
                     value={attributeMin}
                     onChange={(e) => setAttributeMin(e.target.value)}
-                    className="mt-1 block w-full border-2 border-indigo-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 block w-full border border-indigo-200 p-2 focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="attribute-max" className="block text-sm font-bold text-indigo-800">
+                  <label htmlFor="attribute-max" className="block text-sm font-medium text-indigo-900">
                     Maximum Value
                   </label>
                   <input
@@ -402,13 +387,13 @@ export default function FeatureAttributeEditor({
                     id="attribute-max"
                     value={attributeMax}
                     onChange={(e) => setAttributeMax(e.target.value)}
-                    className="mt-1 block w-full border-2 border-indigo-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 block w-full border border-indigo-200 p-2 focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="attribute-unit" className="block text-sm font-bold text-indigo-800">
+                  <label htmlFor="attribute-unit" className="block text-sm font-medium text-indigo-900">
                     Unit (optional)
                   </label>
                   <input
@@ -416,7 +401,7 @@ export default function FeatureAttributeEditor({
                     id="attribute-unit"
                     value={attributeUnit}
                     onChange={(e) => setAttributeUnit(e.target.value)}
-                    className="mt-1 block w-full border-2 border-indigo-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 block w-full border border-indigo-200 p-2 focus:ring-indigo-500 focus:border-indigo-500"
                     placeholder="e.g. km, m²"
                   />
                 </div>
@@ -426,7 +411,7 @@ export default function FeatureAttributeEditor({
             {attributeType === 'temporal' && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="attribute-start-date" className="block text-sm font-bold text-indigo-800">
+                  <label htmlFor="attribute-start-date" className="block text-sm font-medium text-indigo-900">
                     Start Date
                   </label>
                   <input
@@ -434,13 +419,13 @@ export default function FeatureAttributeEditor({
                     id="attribute-start-date"
                     value={attributeStartDate}
                     onChange={(e) => setAttributeStartDate(e.target.value)}
-                    className="mt-1 block w-full border-2 border-indigo-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 block w-full border border-indigo-200 p-2 focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="attribute-end-date" className="block text-sm font-bold text-indigo-800">
+                  <label htmlFor="attribute-end-date" className="block text-sm font-medium text-indigo-900">
                     End Date
                   </label>
                   <input
@@ -448,7 +433,7 @@ export default function FeatureAttributeEditor({
                     id="attribute-end-date"
                     value={attributeEndDate}
                     onChange={(e) => setAttributeEndDate(e.target.value)}
-                    className="mt-1 block w-full border-2 border-indigo-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 block w-full border border-indigo-200 p-2 focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
                 </div>
@@ -458,7 +443,7 @@ export default function FeatureAttributeEditor({
             {attributeType === 'identifier' && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="attribute-prefix" className="block text-sm font-bold text-indigo-800">
+                  <label htmlFor="attribute-prefix" className="block text-sm font-medium text-indigo-900">
                     Prefix (optional)
                   </label>
                   <input
@@ -466,13 +451,13 @@ export default function FeatureAttributeEditor({
                     id="attribute-prefix"
                     value={attributePrefix}
                     onChange={(e) => setAttributePrefix(e.target.value)}
-                    className="mt-1 block w-full border-2 border-indigo-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 block w-full border border-indigo-200 p-2 focus:ring-indigo-500 focus:border-indigo-500"
                     placeholder="e.g. ID-, POINT-"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="attribute-digits" className="block text-sm font-bold text-indigo-800">
+                  <label htmlFor="attribute-digits" className="block text-sm font-medium text-indigo-900">
                     Number of Digits
                   </label>
                   <input
@@ -482,7 +467,7 @@ export default function FeatureAttributeEditor({
                     onChange={(e) => setAttributeDigits(e.target.value)}
                     min="1"
                     max="12"
-                    className="mt-1 block w-full border-2 border-indigo-300 p-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 block w-full border border-indigo-200 p-2 focus:ring-indigo-500 focus:border-indigo-500"
                     required
                   />
                 </div>
@@ -497,15 +482,15 @@ export default function FeatureAttributeEditor({
                   resetForm();
                   setShowAddForm(false);
                 }}
-                className="px-4 py-2 border-2 border-gray-300 text-gray-700 font-bold hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 rounded-sm"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-4 py-2 bg-indigo-600 text-white font-bold border-2 border-indigo-700 hover:bg-indigo-500 transform hover:translate-y-[-2px] transition-transform"
+                className="px-4 py-2 bg-indigo-600 text-white font-medium border border-indigo-700 hover:bg-indigo-500 transition-colors rounded-sm"
               >
-                {editingIndex !== null ? 'Update Attribute' : 'Add Attribute'}
+                {editingIndex !== null ? 'Update attribute' : 'Add attribute'}
               </button>
             </div>
           </form>

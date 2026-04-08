@@ -12,9 +12,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Geomockery - AI-Powered Geospatial Data Generation",
-  description: "Generate realistic mock geospatial data for testing and development using AI. Create vector and raster geographic data based on real-world contexts and scenarios.",
-  keywords: "geospatial data, mock data, GIS, AI, vector data, raster data, geographic information systems",
+  title: "Geomockery - Synthetic Geospatial Data Generator",
+  description: "Generate synthetic geospatial features for demos, testing, and learning in the browser. Configure geometry, attributes, boundaries, preview on a map, and export.",
+  keywords: "synthetic geospatial data, geospatial test data, GIS, GeoJSON, shapefile, geographic information systems",
 };
 
 export default function RootLayout({ children }) {

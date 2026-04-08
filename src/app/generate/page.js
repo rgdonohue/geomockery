@@ -25,6 +25,7 @@ export default function GeneratePage() {
   const [aiParsedResult, setAiParsedResult] = useState(null);
   const [aiValidation, setAiValidation] = useState(null);
   const [showAiSuggestions, setShowAiSuggestions] = useState(false);
+  const [isPromptPanelOpen, setIsPromptPanelOpen] = useState(false);
   const [lineLength, setLineLength] = useState({ min: 100, max: 1000 }); // in meters
   const [polygonArea, setPolygonArea] = useState({ min: 1000, max: 10000 }); // in square meters
   const generateMapRef = useRef(null);
@@ -233,314 +234,320 @@ export default function GeneratePage() {
     }
   };
 
+  const hasPrompt = aiPrompt.trim().length > 0;
+  const promptMatchPercent = aiParsedResult ? Math.round(aiParsedResult.confidence * 100) : null;
+  const generationAreaSummary =
+    generationArea === 'draw'
+      ? 'drawn boundary'
+      : generationArea === 'uploaded'
+      ? 'uploaded GeoJSON boundary'
+      : 'current map view';
+  const geometryLabel =
+    geometryType === 'polygon'
+      ? 'polygon features'
+      : geometryType === 'line'
+      ? 'line features'
+      : 'point features';
+  const generationAreaOptions = [
+    {
+      value: 'viewport',
+      label: 'Current map viewport',
+      description: 'Use whatever is visible on the map when you generate.',
+      helper: 'Pan or zoom the map to change the extent.',
+      badge: 'Fastest'
+    },
+    {
+      value: 'draw',
+      label: 'Draw on map',
+      description: 'Sketch a custom boundary directly on the map.',
+      helper: drawnArea ? 'Boundary ready. Redraw anytime.' : 'Best when you need a custom footprint.',
+      badge: drawnArea ? 'Boundary ready' : 'Most control'
+    },
+    {
+      value: 'uploaded',
+      label: 'Upload GeoJSON boundary',
+      description: 'Use an existing GeoJSON polygon or feature collection.',
+      helper: uploadedGeoJSON ? 'Boundary loaded and ready to use.' : 'Useful when you already have a study area.',
+      badge: uploadedGeoJSON ? 'Boundary loaded' : 'Reusable'
+    }
+  ];
+  const activeAreaOption = generationAreaOptions.find((option) => option.value === generationArea);
+  const mapEmptyState =
+    generationArea === 'viewport'
+      ? {
+          eyebrow: 'Map extent',
+          title: 'The visible map area will be used for generation.',
+          detail: 'Pan or zoom to refine coverage, or switch to draw or upload for tighter control.'
+        }
+      : generationArea === 'draw'
+      ? {
+          eyebrow: drawnArea ? 'Custom boundary ready' : 'Draw a boundary',
+          title: drawnArea
+            ? 'Generated features will stay inside the drawn shape.'
+            : 'Sketch a polygon on the map to define the generation boundary.',
+          detail: drawnArea
+            ? 'You can redraw the boundary at any time before generating.'
+            : 'Use viewport mode for quick tests or upload a GeoJSON boundary if you already have one.'
+        }
+      : {
+          eyebrow: uploadedGeoJSON ? 'Boundary loaded' : 'Upload a boundary',
+          title: uploadedGeoJSON
+            ? 'Generated features will use the uploaded GeoJSON extent.'
+            : 'Upload a GeoJSON boundary to constrain the generation area.',
+          detail: uploadedGeoJSON
+            ? 'Pan and zoom are still useful for reviewing the selected area before generating.'
+            : 'This works well when you already have a study area or demo boundary prepared.'
+        };
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col md:flex-row gap-6">
           {/* Left Column - Controls */}
-          <div className="md:w-1/3 space-y-8">
-            <div className="bg-white border-4 border-indigo-600 p-4">
-              <h2 className="text-2xl font-black uppercase text-indigo-900 mb-4">
-                Generate Features
-              </h2>
-              
-              {/* AI Dataset Generation */}
+          <div className="md:w-1/3 space-y-6">
+            <div className="bg-white border border-slate-200 p-5 shadow-sm">
               <div className="mb-6">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-lg font-black uppercase text-indigo-800">
-                    AI Dataset Generation
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-500">
+                  Generate Features
+                </p>
+                <h2 className="mt-2 text-2xl font-black text-indigo-950">
+                  Build a synthetic feature set
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Configure geometry, quantity, area, and attributes first. Prompt-assisted setup is available as an optional helper.
+                </p>
+              </div>
+
+              <div className="mb-5 rounded-sm border border-slate-200 bg-slate-50/60 p-4">
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-slate-900">
+                    Dataset setup
                   </h3>
-                  <button
-                    type="button"
-                    onClick={() => setShowAiSuggestions(!showAiSuggestions)}
-                    className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 border border-indigo-300 hover:bg-indigo-200"
-                  >
-                    {showAiSuggestions ? 'Hide' : 'Show'} Examples
-                  </button>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="relative">
-                    <textarea
-                      value={aiPrompt}
-                      onChange={(e) => setAiPrompt(e.target.value)}
-                      placeholder="Describe the dataset you want to generate (e.g., 'Create 50 coffee shops with ratings and wifi info')"
-                      className={`w-full p-3 border-2 focus:outline-none min-h-[100px] ${
-                        aiValidation?.isValid === false 
-                          ? 'border-red-300 focus:border-red-500'
-                          : aiValidation?.warning
-                          ? 'border-yellow-300 focus:border-yellow-500'
-                          : aiValidation?.confidence > 0.7
-                          ? 'border-green-300 focus:border-green-500'
-                          : 'border-indigo-300 focus:border-indigo-500'
-                      }`}
-                    />
-                    
-                    {/* AI Status Indicator */}
-                    {aiParsedResult && (
-                      <div className="absolute top-2 right-2">
-                        <div className={`w-3 h-3 rounded-full ${
-                          aiParsedResult.confidence > 0.7 ? 'bg-green-500' :
-                          aiParsedResult.confidence > 0.4 ? 'bg-yellow-500' : 'bg-gray-400'
-                        }`} title={`AI Confidence: ${Math.round(aiParsedResult.confidence * 100)}%`} />
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* AI Validation Message */}
-                  {aiValidation && (
-                    <div className={`p-2 text-xs border-l-4 ${
-                      aiValidation.isValid === false 
-                        ? 'bg-red-50 border-red-500 text-red-700'
-                        : aiValidation.warning
-                        ? 'bg-yellow-50 border-yellow-500 text-yellow-700'
-                        : 'bg-green-50 border-green-500 text-green-700'
-                    }`}>
-                      {aiValidation.message}
-                    </div>
-                  )}
-                  
-                  {/* Simple Apply AI Suggestions Button (fallback) */}
-                  {aiParsedResult && aiParsedResult.confidence > 0.8 && (
-                    <button
-                      type="button"
-                      onClick={handleApplyAiSuggestions}
-                      className="w-full px-4 py-2 bg-green-600 text-white font-bold text-sm uppercase border-2 border-green-700 hover:bg-green-500 transform hover:translate-y-[-1px] transition-transform"
-                    >
-                      Quick Apply ({aiParsedResult.domain})
-                    </button>
-                  )}
-                  
-                  <p className="text-xs text-indigo-500">
-                    💡 Try: "50 restaurants with ratings", "hiking trails with difficulty levels", or "parks with facilities"
+                  <p className="mt-1 text-xs text-slate-500">
+                    Choose the feature shape and the volume you want to generate.
                   </p>
                 </div>
-                
-                {/* AI Conversation */}
-                <AiConversation 
-                  prompt={aiPrompt}
-                  onApplySettings={handleApplyAiSettings}
-                  onClearPrompt={handleReplacePrompt}
-                  onMapOperation={handleMapOperation}
-                />
-                
-                {/* Example Prompts */}
-                {showAiSuggestions && (
-                  <div className="mt-3 p-3 bg-indigo-50 border border-indigo-200">
-                    <h4 className="font-bold text-indigo-800 text-sm mb-2">Example Prompts:</h4>
-                    <div className="space-y-1">
-                      {Object.entries(getExamplePrompts()).map(([category, examples]) => (
-                        <div key={category} className="text-xs">
-                          <strong className="text-indigo-700 capitalize">{category}:</strong>
-                          {examples.map((example, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => setAiPrompt(example)}
-                              className="block text-indigo-600 hover:text-indigo-800 hover:underline ml-2"
-                            >
-                              "{example}"
-                            </button>
-                          ))}
+
+                <div className="space-y-5">
+                  {/* Geometry Type */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="text-base font-bold text-indigo-900">
+                        Geometry type
+                      </h4>
+                      {aiParsedResult && aiParsedResult.geometryType === geometryType && (
+                        <span className="text-xs bg-green-50 text-green-700 px-2 py-1 border border-green-200 rounded-sm">
+                          Suggested from prompt
+                        </span>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleGeometryTypeChange('point')}
+                        className={`px-4 py-3 font-semibold text-center text-sm border rounded-sm transition-colors ${
+                          geometryType === 'point'
+                            ? 'bg-indigo-600 text-white border-indigo-600'
+                            : 'bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50'
+                        }`}
+                      >
+                        Points
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleGeometryTypeChange('line')}
+                        className={`px-4 py-3 font-semibold text-center text-sm border rounded-sm transition-colors ${
+                          geometryType === 'line'
+                            ? 'bg-indigo-600 text-white border-indigo-600'
+                            : 'bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50'
+                        }`}
+                      >
+                        Lines
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleGeometryTypeChange('polygon')}
+                        className={`px-4 py-3 font-semibold text-center text-sm border rounded-sm transition-colors ${
+                          geometryType === 'polygon'
+                            ? 'bg-indigo-600 text-white border-indigo-600'
+                            : 'bg-white text-indigo-700 border-indigo-200 hover:bg-indigo-50'
+                        }`}
+                      >
+                        Polygons
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Quantity */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="text-base font-bold text-indigo-900">
+                        Quantity
+                      </h4>
+                      {aiParsedResult && aiParsedResult.quantity === quantity && (
+                        <span className="text-xs bg-green-50 text-green-700 px-2 py-1 border border-green-200 rounded-sm">
+                          Suggested from prompt
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center">
+                      <input
+                        type="number"
+                        min="1"
+                        max="50000"
+                        value={quantity}
+                        onChange={(e) => setQuantity(Math.min(parseInt(e.target.value) || 1, 50000))}
+                        className="w-full p-3 border border-indigo-200 rounded-sm focus:border-indigo-500 focus:outline-none"
+                        placeholder="Enter number of features to generate"
+                      />
+                    </div>
+                    <p className="mt-1 text-xs text-slate-500">Enter a value between 1 and 50,000.</p>
+                  </div>
+                  
+                  {/* Line Length Controls - Only show when geometry type is line */}
+                  {geometryType === 'line' && (
+                    <div>
+                      <h4 className="text-base font-bold text-indigo-900 mb-2">
+                        Line Length (meters)
+                      </h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Minimum</label>
+                          <input
+                            type="number"
+                            min="1"
+                            max={lineLength.max}
+                            value={lineLength.min}
+                            onChange={(e) => setLineLength(prev => ({
+                              ...prev,
+                              min: Math.min(parseInt(e.target.value) || 1, prev.max)
+                            }))}
+                            className="w-full p-2 border border-indigo-200 rounded-sm focus:border-indigo-500"
+                          />
                         </div>
-                      ))}
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Maximum</label>
+                          <input
+                            type="number"
+                            min={lineLength.min}
+                            value={lineLength.max}
+                            onChange={(e) => setLineLength(prev => ({
+                              ...prev,
+                              max: Math.max(parseInt(e.target.value) || prev.min, prev.min)
+                            }))}
+                            className="w-full p-2 border border-indigo-200 rounded-sm focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-              
-              {/* Geometry Type */}
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-lg font-black uppercase text-indigo-800">
-                    Geometry Type
-                  </h3>
-                  {aiParsedResult && aiParsedResult.geometryType === geometryType && (
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 border border-green-300">
-                      AI
-                    </span>
+                  )}
+                  
+                  {/* Polygon Area Controls - Only show when geometry type is polygon */}
+                  {geometryType === 'polygon' && (
+                    <div>
+                      <h4 className="text-base font-bold text-indigo-900 mb-2">
+                        Polygon Area (square meters)
+                      </h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Minimum</label>
+                          <input
+                            type="number"
+                            min="1"
+                            max={polygonArea.max}
+                            value={polygonArea.min}
+                            onChange={(e) => setPolygonArea(prev => ({
+                              ...prev,
+                              min: Math.min(parseInt(e.target.value) || 1, prev.max)
+                            }))}
+                            className="w-full p-2 border border-indigo-200 rounded-sm focus:border-indigo-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm text-slate-600 mb-1">Maximum</label>
+                          <input
+                            type="number"
+                            min={polygonArea.min}
+                            value={polygonArea.max}
+                            onChange={(e) => setPolygonArea(prev => ({
+                              ...prev,
+                              max: Math.max(parseInt(e.target.value) || prev.min, prev.min)
+                            }))}
+                            className="w-full p-2 border border-indigo-200 rounded-sm focus:border-indigo-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleGeometryTypeChange('point')}
-                    className={`px-4 py-3 font-bold text-center text-sm border-2 ${
-                      geometryType === 'point'
-                        ? 'bg-indigo-600 text-white border-indigo-700'
-                        : 'bg-white text-indigo-700 border-indigo-300 hover:bg-indigo-50'
-                    }`}
-                  >
-                    Points
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleGeometryTypeChange('line')}
-                    className={`px-4 py-3 font-bold text-center text-sm border-2 ${
-                      geometryType === 'line'
-                        ? 'bg-indigo-600 text-white border-indigo-700'
-                        : 'bg-white text-indigo-700 border-indigo-300 hover:bg-indigo-50'
-                    }`}
-                  >
-                    Lines
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleGeometryTypeChange('polygon')}
-                    className={`px-4 py-3 font-bold text-center text-sm border-2 ${
-                      geometryType === 'polygon'
-                        ? 'bg-indigo-600 text-white border-indigo-700'
-                        : 'bg-white text-indigo-700 border-indigo-300 hover:bg-indigo-50'
-                    }`}
-                  >
-                    Polygons
-                  </button>
-                </div>
               </div>
-              
-              {/* Quantity */}
-              <div className="mb-6">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-lg font-black uppercase text-indigo-800">
-                    Quantity
-                  </h3>
-                  {aiParsedResult && aiParsedResult.quantity === quantity && (
-                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 border border-green-300">
-                      AI
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center">
-                  <input
-                    type="number"
-                    min="1"
-                    max="50000"
-                    value={quantity}
-                    onChange={(e) => setQuantity(Math.min(parseInt(e.target.value) || 1, 50000))}
-                    className="w-full p-3 border-2 border-indigo-300 focus:border-indigo-500 focus:outline-none"
-                    placeholder="Enter number of features to generate"
-                  />
-                </div>
-                <p className="text-xs text-indigo-500 mt-1">Enter a value between 1 and 50,000</p>
-              </div>
-              
-              {/* Line Length Controls - Only show when geometry type is line */}
-              {geometryType === 'line' && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-black uppercase text-indigo-800 mb-2">
-                    Line Length (meters)
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm text-indigo-600 mb-1">Minimum</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max={lineLength.max}
-                        value={lineLength.min}
-                        onChange={(e) => setLineLength(prev => ({
-                          ...prev,
-                          min: Math.min(parseInt(e.target.value) || 1, prev.max)
-                        }))}
-                        className="w-full p-2 border-2 border-indigo-300 focus:border-indigo-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-indigo-600 mb-1">Maximum</label>
-                      <input
-                        type="number"
-                        min={lineLength.min}
-                        value={lineLength.max}
-                        onChange={(e) => setLineLength(prev => ({
-                          ...prev,
-                          max: Math.max(parseInt(e.target.value) || prev.min, prev.min)
-                        }))}
-                        className="w-full p-2 border-2 border-indigo-300 focus:border-indigo-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {/* Polygon Area Controls - Only show when geometry type is polygon */}
-              {geometryType === 'polygon' && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-black uppercase text-indigo-800 mb-2">
-                    Polygon Area (square meters)
-                  </h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm text-indigo-600 mb-1">Minimum</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max={polygonArea.max}
-                        value={polygonArea.min}
-                        onChange={(e) => setPolygonArea(prev => ({
-                          ...prev,
-                          min: Math.min(parseInt(e.target.value) || 1, prev.max)
-                        }))}
-                        className="w-full p-2 border-2 border-indigo-300 focus:border-indigo-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm text-indigo-600 mb-1">Maximum</label>
-                      <input
-                        type="number"
-                        min={polygonArea.min}
-                        value={polygonArea.max}
-                        onChange={(e) => setPolygonArea(prev => ({
-                          ...prev,
-                          max: Math.max(parseInt(e.target.value) || prev.min, prev.min)
-                        }))}
-                        className="w-full p-2 border-2 border-indigo-300 focus:border-indigo-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
               
               {/* Generation Area */}
-              <div className="mb-6">
-                <h3 className="text-lg font-black uppercase text-indigo-800 mb-2">
-                  Generation Area
-                </h3>
-                <div className="space-y-2">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      name="generation-area"
-                      value="viewport"
-                      checked={generationArea === 'viewport'}
-                      onChange={() => setGenerationArea('viewport')}
-                      className="form-radio text-indigo-600"
-                    />
-                    <span className="text-indigo-800">Current Map Viewport</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      name="generation-area"
-                      value="draw"
-                      checked={generationArea === 'draw'}
-                      onChange={() => setGenerationArea('draw')}
-                      className="form-radio text-indigo-600"
-                    />
-                    <span className="text-indigo-800">Draw on Map</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="radio"
-                      name="generation-area"
-                      value="uploaded"
-                      checked={generationArea === 'uploaded'}
-                      onChange={() => setGenerationArea('uploaded')}
-                      className="form-radio text-indigo-600"
-                    />
-                    <span className="text-indigo-800">Upload GeoJSON</span>
-                  </label>
+              <div className="mb-5 rounded-sm border border-slate-200 bg-slate-50/60 p-4">
+                <div className="mb-3">
+                  <h3 className="text-sm font-semibold text-slate-900">
+                    Generation area
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Choose how the map should define the feature boundary.
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  {generationAreaOptions.map((option, index) => {
+                    const isSelected = generationArea === option.value;
+
+                    return (
+                      <label
+                        key={option.value}
+                        className={`block cursor-pointer rounded-sm border p-3 transition-colors ${
+                          isSelected
+                            ? 'border-indigo-300 bg-white shadow-sm'
+                            : 'border-slate-200 bg-white/80 hover:border-indigo-200'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="generation-area"
+                          value={option.value}
+                          checked={isSelected}
+                          onChange={() => setGenerationArea(option.value)}
+                          className="sr-only"
+                        />
+                        <div className="flex items-start gap-3">
+                          <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${
+                            isSelected
+                              ? 'bg-indigo-600 text-white'
+                              : 'bg-indigo-100 text-indigo-700'
+                          }`}>
+                            {index + 1}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-sm font-semibold text-slate-900">
+                                {option.label}
+                              </span>
+                              <span className={`rounded-sm px-2 py-1 text-[11px] font-medium ${
+                                isSelected
+                                  ? 'bg-indigo-50 text-indigo-700'
+                                  : 'bg-slate-100 text-slate-600'
+                              }`}>
+                                {option.badge}
+                              </span>
+                            </div>
+                            <p className="mt-1 text-sm text-slate-600">
+                              {option.description}
+                            </p>
+                            <p className="mt-1 text-xs text-slate-500">
+                              {option.helper}
+                            </p>
+                          </div>
+                        </div>
+                      </label>
+                    );
+                  })}
                   
                   {generationArea === 'uploaded' && (
-                    <div className="mt-4 pl-6">
+                    <div className="pt-1">
                       <GeoJSONUploader 
                         onGeoJSONLoaded={handleGeoJSONUploaded} 
                       />
@@ -555,26 +562,197 @@ export default function GeneratePage() {
                 attributes={customAttributes}
                 onAttributesChange={handleAttributesChange}
               />
+
+              {/* Prompt-Assisted Setup */}
+              <div className="mt-6 border border-slate-200 bg-slate-50/80">
+                <button
+                  type="button"
+                  onClick={() => setIsPromptPanelOpen(!isPromptPanelOpen)}
+                  className="flex w-full items-start justify-between gap-4 px-4 py-4 text-left"
+                >
+                  <div>
+                    <h3 className="text-base font-semibold text-slate-900">
+                      Prompt-assisted setup
+                    </h3>
+                    <p className="mt-1 text-sm text-slate-600">
+                      Optional helper that suggests a configuration and attributes from a text description.
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    {hasPrompt && promptMatchPercent !== null && (
+                      <span className="rounded-sm border border-indigo-200 bg-white px-2 py-1 text-xs font-medium text-indigo-700">
+                        {promptMatchPercent}% match
+                      </span>
+                    )}
+                    <span className="text-xs font-medium text-indigo-600">
+                      {isPromptPanelOpen ? 'Hide' : 'Show'}
+                    </span>
+                  </div>
+                </button>
+
+                {isPromptPanelOpen && (
+                  <div className="border-t border-indigo-200 px-4 py-4 space-y-4">
+                    <div className="space-y-2">
+                      <div className="relative">
+                        <textarea
+                          value={aiPrompt}
+                          onChange={(e) => setAiPrompt(e.target.value)}
+                          placeholder="Example: 50 coffee shops with ratings and wifi info"
+                          className={`w-full p-3 pr-10 border rounded-sm focus:outline-none min-h-[92px] text-sm leading-6 ${
+                            aiValidation?.isValid === false 
+                              ? 'border-red-300 focus:border-red-500'
+                              : aiValidation?.warning
+                              ? 'border-yellow-300 focus:border-yellow-500'
+                              : aiValidation?.confidence > 0.7
+                              ? 'border-green-300 focus:border-green-500'
+                              : 'border-indigo-200 focus:border-indigo-500'
+                          }`}
+                        />
+
+                        {aiParsedResult && (
+                          <div className="absolute top-3 right-3">
+                            <div className={`w-2.5 h-2.5 rounded-full ${
+                              aiParsedResult.confidence > 0.7 ? 'bg-green-500' :
+                              aiParsedResult.confidence > 0.4 ? 'bg-yellow-500' : 'bg-gray-400'
+                            }`} title={`Prompt match: ${promptMatchPercent}%`} />
+                          </div>
+                        )}
+                      </div>
+
+                      {aiValidation && (
+                        <div className={`rounded-sm border px-3 py-2 text-xs ${
+                          aiValidation.isValid === false 
+                            ? 'bg-red-50 border-red-200 text-red-700'
+                            : aiValidation.warning
+                            ? 'bg-yellow-50 border-yellow-200 text-yellow-700'
+                            : 'bg-green-50 border-green-200 text-green-700'
+                        }`}>
+                          {aiValidation.message}
+                        </div>
+                      )}
+
+                      {aiParsedResult && (
+                        <div className="flex flex-wrap gap-2 text-xs">
+                          {aiParsedResult.domain && (
+                            <span className="rounded-sm bg-white border border-indigo-200 px-2 py-1 text-indigo-700 capitalize">
+                              {aiParsedResult.domain}
+                            </span>
+                          )}
+                          <span className="rounded-sm bg-white border border-indigo-200 px-2 py-1 text-indigo-700 capitalize">
+                            {aiParsedResult.geometryType}
+                          </span>
+                          <span className="rounded-sm bg-white border border-indigo-200 px-2 py-1 text-indigo-700">
+                            {aiParsedResult.quantity} features
+                          </span>
+                          {aiParsedResult.attributes?.length > 0 && (
+                            <span className="rounded-sm bg-white border border-indigo-200 px-2 py-1 text-indigo-700">
+                              {aiParsedResult.attributes.length} suggested attributes
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {aiParsedResult && aiParsedResult.confidence > 0.8 && (
+                        <button
+                          type="button"
+                          onClick={handleApplyAiSuggestions}
+                          className="inline-flex items-center rounded-sm border border-green-300 bg-green-50 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-100"
+                        >
+                          Apply suggested configuration
+                        </button>
+                      )}
+
+                      <p className="text-xs text-slate-500">
+                        Uses built-in keyword matching and templates to prefill the controls above.
+                      </p>
+                    </div>
+
+                    <AiConversation 
+                      prompt={aiPrompt}
+                      onApplySettings={handleApplyAiSettings}
+                      onClearPrompt={handleReplacePrompt}
+                      onMapOperation={handleMapOperation}
+                    />
+
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowAiSuggestions(!showAiSuggestions)}
+                        className="text-xs font-medium text-indigo-700 hover:text-indigo-900"
+                      >
+                        {showAiSuggestions ? 'Hide examples' : 'Show example prompts'}
+                      </button>
+
+                      {showAiSuggestions && (
+                        <div className="rounded-sm border border-indigo-200 bg-white p-3">
+                          <h4 className="text-sm font-semibold text-indigo-900 mb-2">Example prompts</h4>
+                          <div className="space-y-2">
+                            {Object.entries(getExamplePrompts()).map(([category, examples]) => (
+                              <div key={category} className="text-xs">
+                                <strong className="text-indigo-700 capitalize">{category}</strong>
+                                <div className="mt-1 space-y-1">
+                                  {examples.map((example, idx) => (
+                                    <button
+                                      key={idx}
+                                      type="button"
+                                      onClick={() => {
+                                        setAiPrompt(example);
+                                        setIsPromptPanelOpen(true);
+                                      }}
+                                      className="block text-left text-indigo-600 hover:text-indigo-800 hover:underline"
+                                    >
+                                      {example}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
               
-              {/* Generate Button */}
-              <button
-                type="button"
-                onClick={handleGenerate}
-                className="w-full mt-6 px-6 py-3 bg-indigo-600 text-white font-black text-lg uppercase border-2 border-indigo-700 hover:bg-indigo-500 transform hover:translate-y-[-2px] transition-transform"
-              >
-                Generate Features
-              </button>
+              <div className="mt-6 border border-indigo-200 bg-indigo-50 p-4 shadow-sm">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-sm font-semibold text-indigo-900">Ready to generate</h3>
+                    <p className="mt-1 text-sm text-indigo-700">
+                      {quantity} {geometryLabel} in the {generationAreaSummary}.
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-2">
+                    <span className="rounded-sm border border-indigo-200 bg-white px-2 py-1 text-xs text-indigo-700">
+                      {customAttributes.length} attributes
+                    </span>
+                    {hasPrompt && promptMatchPercent !== null && (
+                      <span className="rounded-sm border border-green-200 bg-green-50 px-2 py-1 text-xs text-green-700">
+                        Prompt helper active
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleGenerate}
+                  className="w-full mt-4 px-6 py-3 bg-indigo-600 text-white font-semibold text-base border border-indigo-700 hover:bg-indigo-500 transition-colors"
+                >
+                  Generate features
+                </button>
+              </div>
             </div>
             
             {/* Export Options - Only show when features are generated */}
             {generatedFeatures && generatedFeatures.length > 0 && (
-              <div className="bg-white border-4 border-green-600 p-4">
-                <h2 className="text-2xl font-black uppercase text-green-800 mb-4">
+              <div className="bg-white border-2 border-green-300 p-4 shadow-sm">
+                <h2 className="text-xl font-bold text-green-900 mb-4">
                   Export Features
                 </h2>
                 
                 <div className="mb-4">
-                  <label className="block text-green-800 font-bold mb-2" htmlFor="filename">
+                  <label className="block text-green-900 font-semibold mb-2" htmlFor="filename">
                     File Name
                   </label>
                   <input
@@ -582,13 +760,13 @@ export default function GeneratePage() {
                     id="filename"
                     value={fileName}
                     onChange={(e) => setFileName(e.target.value)}
-                    className="w-full p-2 border-2 border-green-300 focus:border-green-500 focus:outline-none"
+                    className="w-full p-2 border border-green-200 focus:border-green-500 focus:outline-none"
                     placeholder="Enter file name"
                   />
                 </div>
                 
                 <div className="mb-6">
-                  <h3 className="text-lg font-bold text-green-800 mb-2">
+                  <h3 className="text-base font-semibold text-green-900 mb-2">
                     Format
                   </h3>
                   <div className="space-y-2">
@@ -633,7 +811,7 @@ export default function GeneratePage() {
                   <button
                     type="button"
                     onClick={handleDownload}
-                    className="w-full px-6 py-3 bg-green-600 text-white font-black text-lg uppercase border-2 border-green-700 hover:bg-green-500 transform hover:translate-y-[-2px] transition-transform"
+                    className="w-full px-6 py-3 bg-green-600 text-white font-semibold text-base border border-green-700 hover:bg-green-500 transition-colors"
                   >
                     Download
                   </button>
@@ -641,7 +819,7 @@ export default function GeneratePage() {
                   <button
                     type="button"
                     onClick={handleClearFeatures}
-                    className="w-full px-6 py-2 bg-red-600 text-white font-bold text-sm uppercase border-2 border-red-700 hover:bg-red-500 transform hover:translate-y-[-1px] transition-transform"
+                    className="w-full px-6 py-2 bg-red-600 text-white font-medium text-sm border border-red-700 hover:bg-red-500 transition-colors"
                   >
                     Clear Features
                   </button>
@@ -652,38 +830,61 @@ export default function GeneratePage() {
           
           {/* Right Column - Map */}
           <div className="md:w-2/3 h-[70vh]">
-            <GenerateMap
-              ref={generateMapRef}
-              generationArea={generationArea}
-              onDrawingComplete={handleDrawingComplete}
-              uploadedGeoJSON={uploadedGeoJSON}
-            />
+            <div className="relative h-full">
+              <GenerateMap
+                ref={generateMapRef}
+                generationArea={generationArea}
+                onDrawingComplete={handleDrawingComplete}
+                uploadedGeoJSON={uploadedGeoJSON}
+              />
+
+              {!generatedFeatures && (
+                <div className="pointer-events-none absolute left-4 top-4 max-w-sm rounded-sm border border-white/80 bg-white/90 p-4 shadow-sm backdrop-blur-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-sm bg-indigo-50 px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-indigo-700">
+                      {mapEmptyState.eyebrow}
+                    </span>
+                    {activeAreaOption && (
+                      <span className="text-[11px] font-medium text-slate-500">
+                        {activeAreaOption.label}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-3 text-sm font-medium text-slate-900">
+                    {mapEmptyState.title}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                    {mapEmptyState.detail}
+                  </p>
+                </div>
+              )}
+            </div>
             
             {/* Statistics Panel */}
             {generatedFeatures && (
-              <div className="mt-4 p-4 bg-white border-4 border-indigo-300">
+              <div className="mt-4 p-4 bg-white border-2 border-indigo-200 shadow-sm">
                 <div className="flex justify-between items-center mb-3">
-                  <h3 className="text-lg font-bold text-indigo-800">
+                  <h3 className="text-lg font-semibold text-indigo-900">
                     Feature Statistics
                   </h3>
                   <button
                     type="button"
                     onClick={handleClearFeatures}
-                    className="px-4 py-2 bg-red-600 text-white font-bold text-sm uppercase border-2 border-red-700 hover:bg-red-500 transform hover:translate-y-[-1px] transition-transform"
+                    className="px-4 py-2 bg-red-600 text-white font-medium text-sm border border-red-700 hover:bg-red-500 transition-colors"
                     title="Clear all generated features"
                   >
                     Clear Features
                   </button>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-indigo-50 p-3 border-2 border-indigo-200">
+                  <div className="bg-indigo-50 p-3 border border-indigo-200">
                     <div className="text-sm text-indigo-600">Features</div>
                     <div className="text-xl font-bold text-indigo-800">
                       {generatedFeatures.length}
                     </div>
                   </div>
                   
-                  <div className="bg-indigo-50 p-3 border-2 border-indigo-200">
+                  <div className="bg-indigo-50 p-3 border border-indigo-200">
                     <div className="text-sm text-indigo-600">Type</div>
                     <div className="text-xl font-bold text-indigo-800 capitalize">
                       {geometryType}s
@@ -691,7 +892,7 @@ export default function GeneratePage() {
                   </div>
                   
                   {generationArea === 'draw' && drawnArea && (
-                    <div className="bg-indigo-50 p-3 border-2 border-indigo-200">
+                    <div className="bg-indigo-50 p-3 border border-indigo-200">
                       <div className="text-sm text-indigo-600">Area</div>
                       <div className="text-xl font-bold text-indigo-800">
                         {(turf.area(drawnArea) / 1000000).toFixed(2)} km²
@@ -700,7 +901,7 @@ export default function GeneratePage() {
                   )}
                   
                   {customAttributes.length > 0 && (
-                    <div className="bg-indigo-50 p-3 border-2 border-indigo-200">
+                    <div className="bg-indigo-50 p-3 border border-indigo-200">
                       <div className="text-sm text-indigo-600">Attributes</div>
                       <div className="text-xl font-bold text-indigo-800">
                         {customAttributes.length}
@@ -709,8 +910,8 @@ export default function GeneratePage() {
                   )}
                   
                   {aiParsedResult && aiParsedResult.domain && (
-                    <div className="bg-green-50 p-3 border-2 border-green-200">
-                      <div className="text-sm text-green-600">AI Generated</div>
+                    <div className="bg-green-50 p-3 border border-green-200">
+                      <div className="text-sm text-green-600">Prompt Match</div>
                       <div className="text-xl font-bold text-green-800 capitalize">
                         {aiParsedResult.domain}
                       </div>

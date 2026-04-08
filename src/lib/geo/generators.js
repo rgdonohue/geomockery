@@ -50,6 +50,38 @@ export function generatePoint(bounds, attributes = [], constrainingPolygon = nul
 }
 
 /**
+ * Returns true only when a generated line or polygon stays strictly inside
+ * the constraining polygon without crossing or touching its boundary.
+ */
+function isStrictlyContainedInPolygon(feature, constrainingPolygon) {
+  if (!constrainingPolygon) {
+    return true;
+  }
+
+  if (!constrainingPolygon.geometry || !constrainingPolygon.geometry.coordinates) {
+    console.warn('Constraining polygon missing geometry or coordinates, rejecting constrained feature');
+    return false;
+  }
+
+  try {
+    if (!turf.booleanWithin(feature, constrainingPolygon)) {
+      return false;
+    }
+
+    const constrainingBoundary = turf.polygonToLine(constrainingPolygon);
+    const featureBoundary =
+      feature.geometry.type === 'LineString'
+        ? feature
+        : turf.polygonToLine(feature);
+
+    return turf.lineIntersect(featureBoundary, constrainingBoundary).features.length === 0;
+  } catch (error) {
+    console.warn('Error checking feature containment in polygon:', error, 'Feature:', feature, 'Polygon:', constrainingPolygon);
+    return false;
+  }
+}
+
+/**
  * Generate a random line within bounds and with specified length constraints
  */
 export function generateLine(bounds, attributes = [], options = {}) {
@@ -83,8 +115,8 @@ export function generateLine(bounds, attributes = [], options = {}) {
     
     attempts++;
     
-    // If no constraining polygon or line is valid within it, we're done
-    if (!constrainingPolygon || turf.booleanIntersects(line, constrainingPolygon)) {
+    // Only accept lines that stay strictly inside the constraining polygon
+    if (isStrictlyContainedInPolygon(line, constrainingPolygon)) {
       // Verify length is within constraints
       const lineLength = turf.length(line) * 1000; // Convert km to m
       if (lineLength >= minLength && lineLength <= maxLength) {
@@ -156,7 +188,7 @@ export function generatePolygon(bounds, attributes = [], options = {}) {
     
     // Check if polygon meets constraints
     if (area >= minArea && area <= maxArea) {
-      if (!constrainingPolygon || turf.booleanIntersects(polygon, constrainingPolygon)) {
+      if (isStrictlyContainedInPolygon(polygon, constrainingPolygon)) {
         break;
       }
     }

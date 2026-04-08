@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import * as turf from '@turf/turf';
 
 export default function GeoJSONUploader({ onGeoJSONLoaded }) {
   const [isUploading, setIsUploading] = useState(false);
@@ -169,15 +168,15 @@ export default function GeoJSONUploader({ onGeoJSONLoaded }) {
   };
 
   return (
-    <div className="p-4 rounded-lg border-4 border-indigo-500 bg-white">
-      <h3 className="text-lg font-bold mb-3 text-indigo-700">Import GeoJSON</h3>
+    <div className="p-4 rounded-sm border border-indigo-200 bg-white">
+      <h3 className="text-base font-semibold mb-3 text-indigo-900">Import GeoJSON</h3>
       
       {/* Toggle buttons */}
-      <div className="flex mb-4 border-b-4 border-indigo-300 pb-2">
+      <div className="flex mb-4 border-b border-indigo-200 pb-2">
         <button
-          className={`flex-1 py-2 px-4 rounded-t-lg font-bold text-white ${
+          className={`flex-1 py-2 px-4 rounded-t-sm text-sm font-medium text-white ${
             uploadMode === 'file' 
-              ? 'bg-indigo-600 shadow-inner transform -translate-y-1' 
+              ? 'bg-indigo-600' 
               : 'bg-indigo-400 hover:bg-indigo-500'
           }`}
           onClick={() => setUploadMode('file')}
@@ -185,9 +184,9 @@ export default function GeoJSONUploader({ onGeoJSONLoaded }) {
           Upload File
         </button>
         <button
-          className={`flex-1 py-2 px-4 rounded-t-lg font-bold text-white ${
+          className={`flex-1 py-2 px-4 rounded-t-sm text-sm font-medium text-white ${
             uploadMode === 'url' 
-              ? 'bg-indigo-600 shadow-inner transform -translate-y-1' 
+              ? 'bg-indigo-600' 
               : 'bg-indigo-400 hover:bg-indigo-500'
           }`}
           onClick={() => setUploadMode('url')}
@@ -199,7 +198,7 @@ export default function GeoJSONUploader({ onGeoJSONLoaded }) {
       {/* File upload form */}
       {uploadMode === 'file' && (
         <div>
-          <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border-4 border-dashed border-indigo-300 rounded-md">
+          <div className="mt-2 flex justify-center px-6 pt-5 pb-6 border border-dashed border-indigo-300 rounded-sm bg-slate-50">
             <div className="space-y-1 text-center">
               <svg
                 className="mx-auto h-12 w-12 text-indigo-500"
@@ -218,7 +217,7 @@ export default function GeoJSONUploader({ onGeoJSONLoaded }) {
               <div className="flex flex-col justify-center items-center">
                 <label
                   htmlFor="file-upload"
-                  className="relative cursor-pointer bg-indigo-600 rounded-md font-medium text-white hover:bg-indigo-500 py-2 px-4"
+                  className="relative cursor-pointer bg-indigo-600 rounded-sm font-medium text-white hover:bg-indigo-500 py-2 px-4"
                 >
                   <span>Select GeoJSON file</span>
                   <input
@@ -245,14 +244,14 @@ export default function GeoJSONUploader({ onGeoJSONLoaded }) {
       {uploadMode === 'url' && (
         <form onSubmit={handleUrlSubmit}>
           <div className="mt-2">
-            <label htmlFor="url-input" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="url-input" className="block text-sm font-medium text-slate-700 mb-1">
               GeoJSON URL
             </label>
             <div className="flex">
               <input
                 type="url"
                 id="url-input"
-                className="flex-grow block w-full border-4 border-indigo-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2"
+                className="flex-grow block w-full border border-indigo-200 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm p-2 rounded-sm"
                 placeholder="https://example.com/data.geojson"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
@@ -261,7 +260,7 @@ export default function GeoJSONUploader({ onGeoJSONLoaded }) {
               />
               <button
                 type="submit"
-                className="ml-2 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
+                className="ml-2 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none"
                 disabled={isUploading}
               >
                 {isUploading ? 'Loading...' : 'Import'}
@@ -276,10 +275,10 @@ export default function GeoJSONUploader({ onGeoJSONLoaded }) {
       
       {/* Error/Success message */}
       {error && (
-        <div className={`mt-3 p-2 border-l-4 ${
+        <div className={`mt-3 p-3 rounded-sm text-sm ${
           error.startsWith('✅') 
-            ? 'bg-green-100 border-green-500 text-green-700' 
-            : 'bg-red-100 border-red-500 text-red-700'
+            ? 'bg-green-100 border border-green-300 text-green-700' 
+            : 'bg-red-100 border border-red-300 text-red-700'
         }`}>
           <p>{error}</p>
         </div>

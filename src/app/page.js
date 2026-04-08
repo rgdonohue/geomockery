@@ -26,7 +26,7 @@ export default function HomePage() {
                 <span className="inline-block text-pink-600 transform rotate-2">MOCKERY</span>
               </h1>
               <p className="text-2xl md:text-3xl font-bold text-indigo-700 max-w-3xl mx-auto mb-12">
-                Generate realistic geospatial data with just a few clicks
+                Generate synthetic geospatial data for demos, testing, and development
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center">
                 <Link 
@@ -50,7 +50,7 @@ export default function HomePage() {
             <div className="border-8 border-indigo-500 shadow-brutalist transform rotate-1 max-w-5xl mx-auto bg-gray-100 aspect-video relative overflow-hidden">
               <Image 
                 src="/images/app.png" 
-                alt="Geomockery App Screenshot - Generate realistic geospatial data" 
+                alt="Geomockery app screenshot for generating synthetic geospatial data" 
                 fill
                 className="object-cover"
                 priority
@@ -69,7 +69,7 @@ export default function HomePage() {
             <div className="flex items-center justify-center space-x-3">
               <span className="text-2xl">🚧</span>
               <p className="text-lg font-black text-amber-800">
-                <span className="text-amber-900">DEVELOPMENT STATUS:</span> Approaching alpha release - core features functional, expect some rough edges!
+                <span className="text-amber-900">CURRENT STATUS:</span> Small v0.1 in progress - the core workflow is usable, with some rough edges still being tightened.
               </p>
               <span className="text-2xl">⚡</span>
             </div>
@@ -94,7 +94,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-2xl font-black text-indigo-900 mb-4">Points, Lines & Polygons</h3>
               <p className="text-lg font-bold text-indigo-700">
-                Generate any geometry type with realistic spatial distribution and properties.
+                Generate points, lines, and polygons inside any boundary. Distributed uniformly — no street routing or urban clustering.
               </p>
             </div>
             
@@ -107,7 +107,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-2xl font-black text-indigo-900 mb-4">Custom Attributes</h3>
               <p className="text-lg font-bold text-indigo-700">
-                Define your own attribute schemas with AI-powered value generation.
+                Define your own attribute schemas with rule-based value generation (nominal, ordinal, quantitative, and more).
               </p>
             </div>
             
@@ -120,7 +120,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-2xl font-black text-indigo-900 mb-4">Multiple Export Formats</h3>
               <p className="text-lg font-bold text-indigo-700">
-                Download your generated data as GeoJSON, Shapefile, or GeoPackage.
+                Download your generated data as GeoJSON or Shapefile. GeoPackage export is not yet available.
               </p>
             </div>
             
@@ -146,7 +146,7 @@ export default function HomePage() {
               </div>
               <h3 className="text-2xl font-black text-indigo-900 mb-4">Advanced Generation</h3>
               <p className="text-lg font-bold text-indigo-700">
-                Control quantity, distribution, and complex property relationships.
+                Control quantity, geometry type, and attribute configuration.
               </p>
             </div>
             
@@ -157,9 +157,9 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-2xl font-black text-indigo-900 mb-4">Coming Soon: Batch Mode</h3>
+              <h3 className="text-2xl font-black text-indigo-900 mb-4">No Server Required</h3>
               <p className="text-lg font-bold text-indigo-700">
-                Generate large datasets with API access for integration with other tools.
+                Fully client-side for generation — runs in the browser with no backend generation service or account required.
               </p>
             </div>
           </div>
@@ -193,9 +193,9 @@ export default function HomePage() {
               <div className="bg-white border-8 border-green-500 shadow-brutalist transform rotate-1 p-6">
                 <h3 className="text-2xl font-black text-green-600 mb-4">OUR SOLUTION</h3>
                 <ul className="space-y-3 text-lg font-bold text-gray-700">
-                  <li>⚡ Generate realistic data in seconds, not weeks</li>
-                  <li>🎯 Custom-tailored for your exact use case</li>
-                  <li>🛡️ 100% privacy-safe with zero real-world exposure</li>
+                  <li>⚡ Generate synthetic data in seconds, not weeks</li>
+                  <li>🎯 Configurable for your specific geometry and attribute needs</li>
+                  <li>🛡️ Browser-based generation with no remote model or server-side generation step</li>
                   <li>🎨 Creative and fun - make data generation enjoyable</li>
                 </ul>
               </div>
@@ -247,7 +247,7 @@ export default function HomePage() {
               Ready to Generate Some Data?
             </h2>
             <p className="text-xl md:text-2xl font-bold text-white mb-12 max-w-3xl mx-auto">
-              Create realistic geospatial features with custom attributes in seconds
+              Create synthetic geospatial features with configurable attributes in seconds
             </p>
             <Link 
               href="/generate" 
@@ -280,7 +280,7 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="mt-2 text-indigo-200 font-medium">
-                Generate realistic geospatial data for testing and development
+                Generate synthetic geospatial data for testing and development
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-8">

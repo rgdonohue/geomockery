@@ -28,11 +28,11 @@ export default function AiDemoSection() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-black uppercase mb-4">
-            AI-Powered Generation
+            Prompt-Assisted Configuration
           </h2>
           <p className="text-xl text-indigo-200 max-w-3xl mx-auto">
-            Describe what you want in natural language, and our AI will automatically 
-            configure the perfect dataset for you.
+            Type a description and the rule engine will parse keywords to pre-configure
+            geometry type, quantity, and attribute fields.
           </p>
         </div>
 
@@ -41,7 +41,7 @@ export default function AiDemoSection() {
             {/* Input Side */}
             <div className="bg-white text-black p-6 border-4 border-indigo-300">
               <h3 className="text-lg font-black uppercase text-indigo-800 mb-4">
-                Try AI Generation
+                Try prompt parsing
               </h3>
               
               <div className="space-y-4">
@@ -70,7 +70,7 @@ export default function AiDemoSection() {
             {/* Output Side */}
             <div className="bg-gray-100 text-black p-6 border-4 border-gray-400">
               <h3 className="text-lg font-black uppercase text-gray-800 mb-4">
-                AI Understanding
+                Parsed configuration
               </h3>
               
               {demoResult ? (
@@ -93,7 +93,7 @@ export default function AiDemoSection() {
                   
                   {demoResult.domain && (
                     <div className="bg-green-100 p-3 border-2 border-green-300">
-                      <div className="text-xs text-green-600">Detected Domain</div>
+                      <div className="text-xs text-green-600">Matched domain</div>
                       <div className="font-bold text-green-800 capitalize">
                         {demoResult.domain}
                       </div>
@@ -119,7 +119,7 @@ export default function AiDemoSection() {
                   )}
                   
                   <div className="bg-white p-3 border-2 border-gray-300">
-                    <div className="text-xs text-gray-600">AI Confidence</div>
+                    <div className="text-xs text-gray-600">Match confidence</div>
                     <div className="flex items-center gap-2">
                       <div className="flex-1 bg-gray-200 h-2">
                         <div 
@@ -135,7 +135,7 @@ export default function AiDemoSection() {
                 </div>
               ) : (
                 <div className="text-gray-500 text-center py-8">
-                  <p>Enter a prompt to see AI analysis</p>
+                  <p>Enter a prompt to see parsed configuration</p>
                 </div>
               )}
             </div>
@@ -146,7 +146,7 @@ export default function AiDemoSection() {
               href="/generate"
               className="inline-block px-8 py-4 bg-white text-indigo-900 font-black text-lg uppercase border-4 border-white hover:bg-indigo-100 transform hover:translate-y-[-2px] transition-transform"
             >
-              Try Full AI Generation →
+              Use in the generator →
             </a>
           </div>
         </div>

@@ -414,7 +414,7 @@ const GenerateMap = forwardRef(({ generationArea, onDrawingComplete, uploadedGeo
   return (
     <div 
       ref={mapContainer} 
-      className="w-full h-full rounded-lg border-4 border-indigo-300"
+      className="w-full h-full rounded-sm border-2 border-indigo-200 shadow-sm"
       style={{ minHeight: '500px' }}
     />
   );
