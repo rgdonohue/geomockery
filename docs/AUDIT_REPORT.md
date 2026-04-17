@@ -2,7 +2,7 @@
 
 ## Context and method
 
-This audit was refreshed on **2026-04-16** against the current repository state, after the connected-lines / no-go zone work landed in commit `129a631`.
+This audit was refreshed on **2026-04-17** after the v0.2 trust slice landed (seeded RNG, config-beside-download, structural validation). The previous refresh on 2026-04-16 covered the connected-lines / no-go zone work in commit `129a631`.
 
 Findings are grounded in the files currently present under `src/`, repo config, workflow config, and the current documentation set.
 
@@ -23,7 +23,7 @@ Not exercised in this pass:
 
 **Repo status:** **working with caveats**
 
-The v0.1 launch surface holds: points, lines (basic and connected), polygons, GeoJSON / Shapefile export, and a working static build. Trust features — seeded reproducibility, generation metadata beside downloads, geometry validation — are still the main gap.
+The v0.1 launch surface holds: points, lines (basic and connected), polygons, GeoJSON / Shapefile export, and a working static build. The v0.2 trust features have landed: seeded RNG, sibling `*.config.json` on every export, and structural validation surfaced in the summary panel. Remaining gaps are test coverage, live deployment smoke, and shape breadth.
 
 ---
 
@@ -33,8 +33,9 @@ The v0.1 launch surface holds: points, lines (basic and connected), polygons, Ge
 |------|---------------|-------|
 | App shell | `src/app/layout.js`, `src/components/layout/Header.js`, `src/components/layout/Layout.js` | Next.js App Router app with shared layout components |
 | Routes | `src/app/page.js`, `src/app/generate/page.js`, `src/app/about/page.js` | Three user-facing routes; no API routes |
-| Generation engine | `src/lib/geo/generators.js`, `src/lib/geo/utilityNetworkConfig.js` | Point, basic line, connected line network, and polygon generation with Turf helpers |
-| Export | `src/lib/geo/exporters.js` | GeoJSON and Shapefile wiring; GeoPackage path still throws |
+| Generation engine | `src/lib/geo/generators.js`, `src/lib/geo/utilityNetworkConfig.js`, `src/lib/utils/random.js` | Point, basic line, connected line network, and polygon generation with Turf helpers, driven by a module-level seeded RNG (mulberry32) |
+| Validation | `src/lib/geo/validation.js` | Structural validation for points, lines, and polygons; non-blocking; findings surfaced in the summary panel |
+| Export | `src/lib/geo/exporters.js` | GeoJSON and Shapefile wiring; sibling `*.config.json` emitted on every export via `buildGenerationConfig`; GeoPackage path still throws |
 | Prompt assistance | `src/lib/ai/aiProcessor.js`, `src/lib/ai/geoIntelligence.js`, `src/app/generate/components/AiConversation.js` | Rule-based keyword parser and map suggestions; no remote model |
 | Map + boundary tools | `src/app/generate/components/GenerateMap.js`, `src/app/generate/components/GeoJSONUploader.js` | OpenLayers preview on CARTO Dark Matter basemap, drawing, file upload, URL import, no-go zone draw/upload |
 | Attribute editing | `src/app/generate/components/FeatureAttributeEditor.js`, `src/data/schemas/attributeSchema.js` | Configurable attribute schema editor and schema defaults |
@@ -74,10 +75,12 @@ Statuses use only the required labels: **working**, **working with caveats**, **
 | Define boundary by drawing | working with caveats | `src/app/generate/components/GenerateMap.js` | OpenLayers draw interaction is wired; browser interaction not manually exercised in this pass | high |
 | Define boundary by upload | working with caveats | `src/app/generate/components/GeoJSONUploader.js` | File import is wired; URL import subject to browser CORS | high |
 | Generate attributes | working with caveats | `src/lib/geo/generators.js`, `src/app/generate/components/FeatureAttributeEditor.js`, `src/lib/ai/aiProcessor.js` | Attribute values are random/template-driven; no relationship modeling or export-time schema validation | medium |
-| Configure generation parameters | working | `src/app/generate/page.js` | Geometry, quantity, line workflow mode, connected-line shape + density, line length, polygon area, export format, and attribute controls are present | medium |
+| Configure generation parameters | working | `src/app/generate/page.js` | Geometry, quantity, line workflow mode, connected-line shape + density, line length, polygon area, export format, attribute controls, and reproducibility seed are present | medium |
 | Preview generated data on map | working with caveats | `src/app/generate/components/GenerateMap.js` | CARTO Dark Matter basemap + vector features with an on-map legend for connected-line roles; browser rendering not manually exercised in this pass | high |
-| Export GeoJSON | working with caveats | `src/lib/geo/exporters.js`, `src/app/generate/page.js` | Download wiring exists through `file-saver`; exported file not manually opened in this pass | high |
-| Export Shapefile | working with caveats | `src/lib/geo/exporters.js`, `src/app/generate/page.js` | ZIP export wiring exists through `@mapbox/shp-write`; external GIS interoperability still untested | high |
+| Seeded reproducibility | working with caveats | `src/lib/utils/random.js`, `src/app/generate/components/GenerateMap.js`, `src/app/generate/page.js` | Module-level mulberry32 RNG seeded at the top of every generation run. Seed input always visible in the sidebar; word seeds are hashed. Same seed + same settings produce the same output in code; not yet covered by an automated regression test. | high |
+| Structural validation | working with caveats | `src/lib/geo/validation.js`, `src/app/generate/page.js` | Runs automatically after each generation; findings shown in the summary panel. Non-blocking by design (fixture workbench may intentionally want weird geometry). Attribute schema validation is not covered. | high |
+| Export GeoJSON + config sidecar | working with caveats | `src/lib/geo/exporters.js`, `src/app/generate/page.js` | Download wiring exists through `file-saver`; sibling `<filename>.config.json` records seed, settings, metadata, validation summary, and timestamp. External read of the sidecar not manually exercised in this pass. | high |
+| Export Shapefile + config sidecar | working with caveats | `src/lib/geo/exporters.js`, `src/app/generate/page.js` | ZIP export wiring exists through `@mapbox/shp-write`; sibling `<filename>.config.json` accompanies the zip. External GIS interoperability still untested. | high |
 | Export GeoPackage | broken | `src/lib/geo/exporters.js`, `src/app/generate/page.js` | Function throws immediately and UI keeps the option disabled | low |
 | Reset / clear | working | `src/app/generate/page.js`, `src/app/generate/components/GenerateMap.js` | UI clears generated state and the map feature source | low |
 | Build / static export | working | `npm run build` was green as of commit `129a631` | Build completes successfully and exports `/`, `/about`, and `/generate` | high |
@@ -101,26 +104,26 @@ Statuses use only the required labels: **working**, **working with caveats**, **
 
 ## Section 5 — Testing and quality gaps
 
-- **Automated tests:** **broken**. No unit, integration, or end-to-end test files are present.
+- **Automated tests:** **broken**. No unit, integration, or end-to-end test files are present. Seeded reproducibility is a natural candidate for the first unit test.
 - **Linting:** **untested** as a gate. There is no standalone lint script in `package.json`, and no explicit ESLint config is present at the repo root.
-- **Generated output validation:** **broken**. Exporters serialize and download data, but there is no structural validation pass before export.
+- **Generated output validation:** **working with caveats**. `validateFeatures` runs after every generation and findings are shown in the summary panel and in the exported config sidecar. The check is structural, not schema-based.
 - **Browser happy path:** **untested**. This pass did not manually confirm generate → preview → export through the browser UI.
 - **Deployment smoke test:** **working with caveats**. The Pages export path was previously validated locally, but there is no recorded live public Pages check in this audit.
-- **Reproducibility:** **broken** for seeded use cases. `src/lib/utils/random.js` includes seed helpers, but the active generation helpers still use `Math.random()` and the sidebar does not expose a seed input.
+- **Reproducibility:** **working with caveats**. `src/lib/utils/random.js` now drives all `getRandom*` helpers from a single seeded mulberry32 RNG; the seed is set at the top of each generation run and surfaced in the metadata, sidebar, and config sidecar. Not yet locked in by an automated test.
 - **Mobile verification:** **untested**. Responsive classes are present, but no browser/device run was performed.
 
 ---
 
 ## Section 6 — Open blockers for the next slice
 
-These are the smallest high-value items separating the repo from a *trustworthy* v0.2. They map onto the forward plan in `docs/geomockery-revival-roadmap.md`.
+The v0.2 trust slice closed the reproducibility, config-travel, and structural-validation gaps from the prior audit. The remaining items map onto `docs/geomockery-revival-roadmap.md`.
 
-1. **Reproducibility is not wired.** Until a seed input is exposed and plumbed through the generators, two runs with the same settings can differ silently. This is the single biggest credibility gap for a "fixture workbench".
-2. **Generation config does not travel with the data.** There is no `*.config.json` (or similar) written alongside exports, so downstream users cannot tell how a file was produced.
-3. **Geometry validation is missing.** Exports are not checked for validity (self-intersection, zero-length lines, empty polygons) before download.
-4. **Connected-line output can silently under-deliver.** When exclusions or separation constraints clip branches, the user sees "generated N of requested M" but has no structured log of what was rejected.
-5. **Live deployment is still unverified on every release.** A short manual smoke checklist per release would close this.
-6. **Older docs still oversell the product *if* someone finds them via search.** The Dec-2024 planning set has been moved to `docs/archive/` with a pointer; this is acceptable, but archived files should not be linked from live docs.
+1. **No automated regression test for reproducibility.** Seeded generation works in code, but nothing fails CI if someone re-introduces `Math.random()` into the generator path. First unit test should be "same seed + same settings ⇒ same output".
+2. **Connected-line rejection log is still prose, not structured.** The user sees "generated N of requested M" but the reasons (exclusion hit, min-separation, outside-boundary) are not broken out. The config sidecar carries the count but not the rejection breakdown.
+3. **Shape breadth is narrow.** Lines offer *basic* and *connected network sketch*. v0.3 should add 1–2 additional shapes (path-through-waypoints, line-of-sight, or migration corridor) so the product looks like a library, not a single-trick generator.
+4. **Live deployment is still unverified on every release.** A short manual smoke checklist per release would close this.
+5. **External-GIS interoperability still untested.** Neither the GeoJSON nor the Shapefile output has been opened in QGIS/ArcGIS in this audit pass.
+6. **GeoPackage remains as a disabled UI option in two places.** Either wire it through a browser-compatible library (v0.4) or delete the disabled branch.
 
 **Not a blocker for v0.1 or v0.2 if the docs stay honest:** GeoPackage. The current README and UI already present it as unavailable, which is acceptable for a small public release.
 

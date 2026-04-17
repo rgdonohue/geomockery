@@ -12,6 +12,7 @@ import * as olControl from 'ol/control';
 import { Fill, Stroke, Style, Circle as CircleStyle } from 'ol/style';
 import * as turf from '@turf/turf';
 import { generatePoint, generateLine, generatePolygon, generateUtilityNetwork } from '@/lib/geo/generators';
+import { setSeed, getActiveSeed } from '@/lib/utils/random';
 
 function flattenPolygonFeatures(geoJSON) {
   if (!geoJSON) {
@@ -418,12 +419,15 @@ const GenerateMap = forwardRef(({
       generationArea: generationAreaSetting,
       lineWorkflowMode,
       utilityNetworkSettings,
-      aiPrompt
+      aiPrompt,
+      seed
     }) => {
       const map = mapRef.current;
       if (!mapReady || !map) {
         return { features: [], metadata: null, warnings: ['Map not ready yet.'] };
       }
+
+      const activeSeed = setSeed(seed);
 
       let bounds;
       let constrainingPolygon = null;
@@ -453,7 +457,7 @@ const GenerateMap = forwardRef(({
             sourcePrompt: aiPrompt?.trim() || ''
           });
           features = networkResult.features;
-          metadata = networkResult.metadata;
+          metadata = { ...(networkResult.metadata || {}), seed: activeSeed };
           warnings = networkResult.warnings || [];
         } else {
           let failCount = 0;
@@ -494,6 +498,7 @@ const GenerateMap = forwardRef(({
             generatedSegments: geometryType === 'line' ? features.length : undefined,
             targetSegments: geometryType === 'line' ? quantity : undefined,
             exclusionsUsed: exclusionPolygons.length,
+            seed: activeSeed,
             syntheticNotice:
               geometryType === 'line'
                 ? 'Basic line mode emits simple synthetic segments and is best used for rough demos.'

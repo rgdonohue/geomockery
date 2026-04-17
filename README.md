@@ -18,7 +18,9 @@ There is **no server** and **no LLM**: “prompt” and attribute behavior are d
   - **Polygons** — jittered radial shapes, not parcel-like or topology-aware.
 - **Attributes:** Configurable fields with generated values (nominal, ordinal, quantitative, etc.) using the built-in rule engine.
 - **Preview:** OpenLayers map preview of generated features on a CARTO Dark Matter basemap.
-- **Export:** **GeoJSON** and **Shapefile** (ZIP via `@mapbox/shp-write`). **GeoPackage is not implemented** (the code path throws; do not rely on it).
+- **Reproducibility:** Every generation run uses a visible seed (numeric or word, word seeds are hashed). Same seed + same settings = same output.
+- **Structural validation:** Generated features are checked for self-intersections, zero-length lines, degenerate polygons, and missing coordinates. Findings are surfaced in the summary panel without blocking export.
+- **Export:** **GeoJSON** and **Shapefile** (ZIP via `@mapbox/shp-write`). Every export also writes a sibling `<filename>.config.json` describing how the dataset was produced (seed, settings, validation summary, timestamp). **GeoPackage is not implemented** (the code path throws; do not rely on it).
 
 ---
 
@@ -27,9 +29,8 @@ There is **no server** and **no LLM**: “prompt” and attribute behavior are d
 - Natural-language or cloud “AI” generation — the prompt box is a rule-based keyword parser.
 - Network routing, street-following lines, or realistic urban clustering. Connected lines are a *plausible sketch*, not a real utility or road network.
 - GeoPackage export.
-- Guaranteed reproducibility from a seed (RNG is not wired for deterministic runs).
 - Automated performance proof at very large feature counts (generation is a single-threaded client loop).
-- Validation of generated geometry against a schema before download.
+- Schema-based validation of attribute values before download (structural geometry validation runs; attribute validation does not).
 
 See [`docs/AUDIT_REPORT.md`](docs/AUDIT_REPORT.md) for a source-grounded status table.
 

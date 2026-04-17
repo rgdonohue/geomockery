@@ -6,8 +6,10 @@ import GenerateMap from './components/GenerateMap';
 import FeatureAttributeEditor from './components/FeatureAttributeEditor';
 import GeoJSONUploader from './components/GeoJSONUploader';
 import AiConversation from './components/AiConversation';
-import { exportAsGeoJSON, exportAsShapefile, exportAsGeoPackage } from '@/lib/geo/exporters';
+import { exportAsGeoJSON, exportAsShapefile, exportAsGeoPackage, buildGenerationConfig } from '@/lib/geo/exporters';
 import { parsePrompt, generateSmartDefaults, validatePrompt, getExamplePrompts } from '@/lib/ai/aiProcessor';
+import { generateSeed, coerceSeed } from '@/lib/utils/random';
+import { validateFeatures, summarizeIssues } from '@/lib/geo/validation';
 import Header from '@/components/layout/Header';
 import {
   DEFAULT_UTILITY_NETWORK_SETTINGS,
@@ -71,6 +73,8 @@ export default function GeneratePage() {
   const [lineWorkflowMode, setLineWorkflowMode] = useState(LINE_WORKFLOW_MODES.BASIC);
   const [utilityNetworkSettings, setUtilityNetworkSettings] = useState(DEFAULT_UTILITY_NETWORK_SETTINGS);
   const [activeDrawTarget, setActiveDrawTarget] = useState(null);
+  const [seedInput, setSeedInput] = useState(() => String(generateSeed()));
+  const [validationResult, setValidationResult] = useState(null);
   const generateMapRef = useRef(null);
 
   useEffect(() => {
@@ -131,6 +135,7 @@ export default function GeneratePage() {
     }
 
     try {
+      const coercedSeed = coerceSeed(seedInput);
       const result = generateMapRef.current.generateFeatures({
         geometryType,
         quantity: Math.min(quantity, 50000),
@@ -140,18 +145,26 @@ export default function GeneratePage() {
         generationArea,
         lineWorkflowMode,
         utilityNetworkSettings,
-        aiPrompt: aiPrompt.trim()
+        aiPrompt: aiPrompt.trim(),
+        seed: coercedSeed
       });
 
       setGenerationWarnings(result?.warnings || []);
       setGenerationMetadata(result?.metadata || null);
 
+      const appliedSeed = result?.metadata?.seed;
+      if (typeof appliedSeed === 'number' && String(appliedSeed) !== seedInput) {
+        setSeedInput(String(appliedSeed));
+      }
+
       if (result?.features && result.features.length > 0) {
         setGeneratedFeatures(result.features);
+        setValidationResult(validateFeatures(result.features));
         return;
       }
 
       setGeneratedFeatures(null);
+      setValidationResult(null);
       alert(result?.warnings?.[0] || 'No features were generated. Please check your settings and try again.');
     } catch (error) {
       console.error('Error during feature generation:', error);
@@ -166,8 +179,13 @@ export default function GeneratePage() {
     generationArea,
     lineWorkflowMode,
     utilityNetworkSettings,
-    aiPrompt
+    aiPrompt,
+    seedInput
   ]);
+
+  const handleRollSeed = useCallback(() => {
+    setSeedInput(String(generateSeed()));
+  }, []);
 
   const handleDownload = async () => {
     if (!generatedFeatures || generatedFeatures.length === 0) {
@@ -177,19 +195,43 @@ export default function GeneratePage() {
 
     const exportFileName = fileName || 'generated_features';
 
+    const settingsSnapshot = {
+      geometryType,
+      quantity,
+      generationArea,
+      customAttributes,
+      lineLength: geometryType === 'line' ? lineLength : undefined,
+      polygonArea: geometryType === 'polygon' ? polygonArea : undefined,
+      lineWorkflowMode: geometryType === 'line' ? lineWorkflowMode : undefined,
+      utilityNetworkSettings:
+        geometryType === 'line' && lineWorkflowMode === LINE_WORKFLOW_MODES.UTILITY
+          ? utilityNetworkSettings
+          : undefined,
+      exclusionFeatureCount: getFeatureCollectionCount(excludedGeoJSON)
+    };
+
+    const config = buildGenerationConfig({
+      features: generatedFeatures,
+      metadata: generationMetadata,
+      settings: settingsSnapshot,
+      validation: validationResult?.summary || null,
+      exportFormat,
+      filename: exportFileName
+    });
+
     try {
       switch (exportFormat) {
         case 'geojson':
-          exportAsGeoJSON(generatedFeatures, exportFileName, generationMetadata);
+          exportAsGeoJSON(generatedFeatures, exportFileName, generationMetadata, config);
           break;
         case 'shapefile':
-          await exportAsShapefile(generatedFeatures, exportFileName);
+          await exportAsShapefile(generatedFeatures, exportFileName, config);
           break;
         case 'geopackage':
           await exportAsGeoPackage(generatedFeatures, exportFileName);
           break;
         default:
-          exportAsGeoJSON(generatedFeatures, exportFileName, generationMetadata);
+          exportAsGeoJSON(generatedFeatures, exportFileName, generationMetadata, config);
       }
     } catch (error) {
       console.error('Export error:', error);
@@ -201,6 +243,7 @@ export default function GeneratePage() {
     setGeneratedFeatures(null);
     setGenerationMetadata(null);
     setGenerationWarnings([]);
+    setValidationResult(null);
     if (generateMapRef.current?.clearFeatures) {
       generateMapRef.current.clearFeatures();
     }
@@ -726,6 +769,38 @@ export default function GeneratePage() {
 
             <div className="border-t border-slate-800" />
 
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                  Seed
+                </label>
+                <span className="text-[9px] uppercase tracking-widest text-emerald-400">reproducible</span>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={seedInput}
+                  onChange={(e) => setSeedInput(e.target.value)}
+                  placeholder="Enter a number or word"
+                  className="flex-1 bg-slate-800 border border-slate-700 text-white px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={handleRollSeed}
+                  title="Generate a new random seed"
+                  className="px-3 py-2 border border-slate-700 bg-slate-800 text-slate-300 text-xs font-semibold hover:border-emerald-600 hover:text-emerald-300 transition-colors"
+                >
+                  New seed
+                </button>
+              </div>
+              <p className="mt-2 text-[11px] text-slate-600">
+                Same seed + same settings = same output. Words are hashed, numbers are used directly.
+              </p>
+            </div>
+
+            <div className="border-t border-slate-800" />
+
             <FeatureAttributeEditor
               geometryType={geometryType}
               attributes={customAttributes}
@@ -956,6 +1031,35 @@ export default function GeneratePage() {
                       <div className="flex items-center justify-between">
                         <span>Total length</span>
                         <span>{generationMetadata.totalLengthMeters.toLocaleString()} m</span>
+                      </div>
+                    )}
+
+                    {typeof generationMetadata.seed === 'number' && (
+                      <div className="flex items-center justify-between">
+                        <span>Seed</span>
+                        <span className="font-mono text-slate-200">{generationMetadata.seed}</span>
+                      </div>
+                    )}
+
+                    {validationResult?.summary && (
+                      <div className="pt-1 border-t border-slate-800 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span>Validation</span>
+                          <span className={
+                            validationResult.summary.errors > 0
+                              ? 'text-red-400'
+                              : validationResult.summary.warnings > 0
+                              ? 'text-amber-300'
+                              : 'text-emerald-400'
+                          }>
+                            {validationResult.summary.total === 0
+                              ? 'clean'
+                              : `${validationResult.summary.errors}E / ${validationResult.summary.warnings}W`}
+                          </span>
+                        </div>
+                        {summarizeIssues(validationResult.summary).map((line, i) => (
+                          <p key={i} className="text-[11px] text-slate-500">{line}</p>
+                        ))}
                       </div>
                     )}
 

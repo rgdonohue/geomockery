@@ -20,6 +20,10 @@ const nextConfig = {
   output: 'export',
   trailingSlash: true,
   basePath,
+  // Avoid webpack server vendor chunks for @turf/turf (large, scope-named). Without
+  // this, dev HMR can leave the runtime pointing at a missing
+  // `.next/server/vendor-chunks/@turf.js` file (ENOENT on /generate).
+  serverExternalPackages: ['@turf/turf'],
   assetPrefix: basePath || undefined,
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
