@@ -5,9 +5,9 @@ import * as shpwrite from '@mapbox/shp-write';
 /**
  * Convert features to GeoJSON format
  */
-function featuresAsGeoJSON(features) {
+function featuresAsGeoJSON(features, metadata = null) {
   // Create a FeatureCollection directly from the features
-  return {
+  const featureCollection = {
     type: 'FeatureCollection',
     features: features.map(feature => {
       // Ensure the feature has the correct GeoJSON structure
@@ -18,6 +18,14 @@ function featuresAsGeoJSON(features) {
       };
     })
   };
+
+  if (metadata) {
+    featureCollection.metadata = metadata;
+    featureCollection.generated_by = 'Geomockery';
+    featureCollection.synthetic = true;
+  }
+
+  return featureCollection;
 }
 
 /**
@@ -60,8 +68,8 @@ async function featuresAsGeoPackage(features) {
 /**
  * Export features as GeoJSON file
  */
-export function exportAsGeoJSON(features, filename = 'features') {
-  const geojson = featuresAsGeoJSON(features);
+export function exportAsGeoJSON(features, filename = 'features', metadata = null) {
+  const geojson = featuresAsGeoJSON(features, metadata);
   const blob = new Blob([JSON.stringify(geojson, null, 2)], {
     type: 'application/json'
   });

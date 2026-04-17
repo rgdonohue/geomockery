@@ -1,26 +1,26 @@
 # AGENTS.md
 
 ## Project phase
-Audit / truth pass.
+Feature work.
 
 ## Agent expectations
-- Treat all repo claims as hypotheses until verified.
-- Do not change code during audit tasks unless explicitly instructed.
+- Prefer the smallest useful next step; avoid unrelated refactors and scope drift.
+- Do not silently remove user-visible behavior (basemap, drawing, export) without explicit instruction.
 - Use the following status labels only:
   - working
   - working with caveats
   - broken
   - untested
 - Report uncertainty clearly.
-- Prefer the smallest useful next step.
-- Avoid unrelated refactors and scope drift.
+- Ground claims in code, config, and runtime checks when possible.
 
 ## Current deliverables
-- `docs/AUDIT_REPORT.md`
-- `docs/ARCHITECTURE_DECISION_MEMO.md`
+- Context-aware line / utility network mode on the generate page.
+- Basemap preserved so boundaries and generated features remain geographically readable.
+- No-go zone flows for lines (draw + upload) as implemented in the UI.
 
 ## Current priorities
-1. establish repo truth
-2. identify launch blockers
-3. define smallest credible v0.1
-4. defer complexity until after launch
+1. Restore and keep basemap rendering on `/generate`.
+2. Ship and stabilize context-aware line generation (constraints, exclusions).
+3. Regression-check points, polygons, and export paths.
+4. Keep documentation aligned with actual behavior.

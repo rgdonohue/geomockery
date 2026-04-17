@@ -4,6 +4,7 @@
  */
 
 import { analyzePromptWithGeography, generatePreviewData } from '@/lib/ai/geoIntelligence.js';
+import { DEFAULT_UTILITY_NETWORK_SETTINGS, LINE_WORKFLOW_MODES } from '@/lib/geo/utilityNetworkConfig';
 
 // Common domain-specific keywords and their associated attributes
 const DOMAIN_TEMPLATES = {
@@ -60,6 +61,16 @@ const DOMAIN_TEMPLATES = {
       { name: 'length_miles', type: 'quantitative', range: { min: 0.5, max: 15.0, unit: 'miles' } },
       { name: 'surface', type: 'nominal', values: ['Paved', 'Gravel', 'Dirt', 'Natural'] },
       { name: 'accessibility', type: 'nominal', values: ['Wheelchair Accessible', 'Limited Access', 'Not Accessible'] }
+    ]
+  },
+  'utility network': {
+    geometryType: 'line',
+    attributes: [
+      { name: 'segment_id', type: 'identifier', format: { prefix: 'SEG-', digits: 5 } },
+      { name: 'service_type', type: 'nominal', values: ['Water', 'Sewer', 'Electric', 'Telecom', 'Generic Utility'] },
+      { name: 'status', type: 'nominal', values: ['Planned', 'Proposed', 'Active', 'Maintenance'] },
+      { name: 'diameter_mm', type: 'quantitative', range: { min: 50, max: 900, unit: 'mm' } },
+      { name: 'material', type: 'nominal', values: ['PVC', 'Steel', 'Copper', 'HDPE', 'Composite'] }
     ]
   },
   
@@ -125,6 +136,76 @@ const QUANTITY_KEYWORDS = {
   thousands: 2000
 };
 
+function inferUtilityNetworkSettings(lowercasePrompt, domain, geometryType) {
+  const utilityHints = [
+    'utility network', 'utility', 'pipeline', 'pipelines', 'water main',
+    'water network', 'sewer', 'electric', 'telecom', 'distribution network',
+    'branching', 'looped', 'backbone', 'substation', 'feeder'
+  ];
+
+  const isUtilityPrompt =
+    geometryType === 'line' &&
+    (domain === 'utility network' || utilityHints.some((keyword) => lowercasePrompt.includes(keyword)));
+
+  if (!isUtilityPrompt) {
+    return null;
+  }
+
+  const networkType =
+    lowercasePrompt.includes('water') ? 'water' :
+    lowercasePrompt.includes('sewer') ? 'sewer' :
+    lowercasePrompt.includes('electric') ? 'electric' :
+    lowercasePrompt.includes('telecom') || lowercasePrompt.includes('fiber') || lowercasePrompt.includes('cable') ? 'telecom' :
+    'generic';
+
+  const pattern =
+    lowercasePrompt.includes('loop') ? 'looped' :
+    lowercasePrompt.includes('backbone') || lowercasePrompt.includes('trunk') ? 'backbone' :
+    lowercasePrompt.includes('mixed') ? 'mixed' :
+    'branching';
+
+  const density =
+    lowercasePrompt.includes('dense') || lowercasePrompt.includes('urban') ? 'dense' :
+    lowercasePrompt.includes('sparse') || lowercasePrompt.includes('rural') ? 'sparse' :
+    'medium';
+
+  const anchorStrategy =
+    lowercasePrompt.includes('cluster') ? 'anchor-clusters' :
+    lowercasePrompt.includes('random') ? 'random-anchors' :
+    'edge-to-center';
+
+  const corridorBias =
+    lowercasePrompt.includes('cluster to cluster') ? 'cluster-to-cluster' :
+    lowercasePrompt.includes('no corridor') ? 'none' :
+    'long-axis';
+
+  const exclusionKeywords = ['avoid lake', 'avoid lakes', 'avoid water', 'avoid park', 'avoid parks', 'no-go', 'exclude'];
+  const hasObstacleAvoidance = exclusionKeywords.some((keyword) => lowercasePrompt.includes(keyword));
+
+  const minSeparation =
+    lowercasePrompt.includes('wide spacing') ? 180 :
+    lowercasePrompt.includes('tight spacing') ? 45 :
+    DEFAULT_UTILITY_NETWORK_SETTINGS.minSeparation;
+
+  return {
+    lineWorkflowMode: LINE_WORKFLOW_MODES.UTILITY,
+    utilityNetworkSettings: {
+      ...DEFAULT_UTILITY_NETWORK_SETTINGS,
+      networkType,
+      pattern,
+      density,
+      anchorStrategy,
+      corridorBias,
+      minSeparation
+    },
+    utilityPlan: {
+      interpretedAs: 'constraint-aware-network',
+      obstacleBehavior: hasObstacleAvoidance ? 'avoid-exclusions' : DEFAULT_UTILITY_NETWORK_SETTINGS.obstacleBehavior,
+      mentionsExclusions: hasObstacleAvoidance
+    }
+  };
+}
+
 /**
  * Parse an AI prompt and extract relevant information
  * @param {string} prompt - The natural language prompt
@@ -180,18 +261,22 @@ export function parsePrompt(prompt) {
   
   // Add geographic analysis
   const geoAnalysis = analyzePromptWithGeography(prompt);
+  const utilityInference = inferUtilityNetworkSettings(lowercasePrompt, matchedDomain, geometryType);
   
   return {
     geometryType,
     quantity,
     attributes: matchedTemplate?.attributes || [],
     domain: matchedDomain,
-    confidence: matchedTemplate ? 0.8 : 0.3,
+    confidence: utilityInference ? 0.9 : matchedTemplate ? 0.8 : 0.3,
     originalPrompt: prompt,
     geographic: geoAnalysis.geographic,
     mapSuggestions: geoAnalysis.mapSuggestions,
     hasLocationContext: geoAnalysis.hasLocationContext,
-    locationMessage: geoAnalysis.locationMessage
+    locationMessage: geoAnalysis.locationMessage,
+    lineWorkflowMode: utilityInference?.lineWorkflowMode || LINE_WORKFLOW_MODES.BASIC,
+    utilityNetworkSettings: utilityInference?.utilityNetworkSettings || null,
+    utilityPlan: utilityInference?.utilityPlan || null
   };
 }
 
@@ -304,7 +389,10 @@ export function generateConversationalResponse(prompt) {
         geometryType: parsedInfo.geometryType,
         quantity: parsedInfo.quantity,
         domain: parsedInfo.domain,
-        attributes: parsedInfo.attributes.slice(0, 5)
+        attributes: parsedInfo.attributes.slice(0, 5),
+        lineWorkflowMode: parsedInfo.lineWorkflowMode,
+        utilityNetworkSettings: parsedInfo.utilityNetworkSettings,
+        utilityPlan: parsedInfo.utilityPlan
       }
     };
   }
@@ -316,7 +404,10 @@ export function generateConversationalResponse(prompt) {
       geometryType: parsedInfo.geometryType,
       quantity: parsedInfo.quantity,
       domain: parsedInfo.domain,
-      attributes: parsedInfo.attributes
+      attributes: parsedInfo.attributes,
+      lineWorkflowMode: parsedInfo.lineWorkflowMode,
+      utilityNetworkSettings: parsedInfo.utilityNetworkSettings,
+      utilityPlan: parsedInfo.utilityPlan
     },
     confidence: parsedInfo.confidence
   };
@@ -341,12 +432,15 @@ export function generateSmartDefaults(prompt) {
   const defaults = {
     geometryType: parsed.geometryType,
     quantity: parsed.quantity,
-    customAttributes: parsed.attributes
+    customAttributes: parsed.attributes,
+    lineWorkflowMode: parsed.lineWorkflowMode
   };
   
   // Add geometry-specific defaults
   if (parsed.geometryType === 'line') {
-    if (parsed.domain === 'roads') {
+    if (parsed.lineWorkflowMode === LINE_WORKFLOW_MODES.UTILITY && parsed.utilityNetworkSettings) {
+      defaults.utilityNetworkSettings = parsed.utilityNetworkSettings;
+    } else if (parsed.domain === 'roads') {
       defaults.lineLength = { min: 100, max: 2000 };
     } else if (parsed.domain === 'trails') {
       defaults.lineLength = { min: 500, max: 5000 };
@@ -388,7 +482,9 @@ export function getExamplePrompts() {
     infrastructure: [
       "Generate 30 cell towers with carrier and coverage data",
       "Create hospitals with bed counts and trauma levels",
-      "Make 100 utility points with service types"
+      "Make 100 utility points with service types",
+      "Create a connected network with branching distribution and avoid lakes",
+      "Generate a looped network for a suburban demo with exclusion zones"
     ]
   };
 }
@@ -448,7 +544,9 @@ export function validatePrompt(prompt) {
   
   return {
     isValid: true,
-    message: `Detected ${parsed.domain || 'generic'} dataset with ${parsed.quantity} ${parsed.geometryType} features`,
+    message: parsed.lineWorkflowMode === LINE_WORKFLOW_MODES.UTILITY
+      ? `Detected context-aware network intent with ${parsed.quantity} target line segments`
+      : `Detected ${parsed.domain || 'generic'} dataset with ${parsed.quantity} ${parsed.geometryType} features`,
     confidence: parsed.confidence
   };
 }

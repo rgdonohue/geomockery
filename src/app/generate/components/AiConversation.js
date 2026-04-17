@@ -44,7 +44,9 @@ export default function AiConversation({ prompt, onApplySettings, onClearPrompt,
       let finalSettings = {
         geometryType: conversation.preview.geometryType,
         quantity: responses.quantity || conversation.preview.quantity,
-        customAttributes: conversation.preview.attributes || []
+        customAttributes: conversation.preview.attributes || [],
+        lineWorkflowMode: conversation.preview.lineWorkflowMode,
+        utilityNetworkSettings: conversation.preview.utilityNetworkSettings
       };
 
       // Apply clarification responses
@@ -117,6 +119,23 @@ export default function AiConversation({ prompt, onApplySettings, onClearPrompt,
               </div>
             </div>
           </div>
+
+          {preview.lineWorkflowMode === 'utility' && preview.utilityNetworkSettings && (
+            <div className="mb-4 bg-white border border-green-200 p-3">
+              <p className="text-sm font-medium text-green-900 mb-2">Interpreted network plan</p>
+              <div className="flex flex-wrap gap-2 text-xs text-green-700">
+                <span className="px-2 py-1 border border-green-200 rounded-sm capitalize">
+                  {preview.utilityNetworkSettings.pattern}
+                </span>
+                <span className="px-2 py-1 border border-green-200 rounded-sm capitalize">
+                  {preview.utilityNetworkSettings.density}
+                </span>
+                <span className="px-2 py-1 border border-green-200 rounded-sm capitalize">
+                  {preview.utilityNetworkSettings.anchorStrategy.replace('-', ' ')}
+                </span>
+              </div>
+            </div>
+          )}
 
           {preview.attributes && preview.attributes.length > 0 && (
             <div className="mb-4">
