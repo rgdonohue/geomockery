@@ -11,20 +11,25 @@ There is **no server** and **no LLM**: “prompt” and attribute behavior are d
 ## What it does (v0.1)
 
 - **Boundaries:** Map viewport, drawn polygon, or uploaded / URL GeoJSON.
-- **Geometry:** Points, straight two-point line segments, or jittered polygons (not street routing or cadastral realism).
+- **Geometry:**
+  - **Points** — uniform random inside the boundary.
+  - **Lines — basic** — straight two-point segments with a length range.
+  - **Lines — connected** — a sketch of a connected line network with a main line, branches, and optional loops. Supports user-drawn or uploaded *no-go zones* that lines must avoid.
+  - **Polygons** — jittered radial shapes, not parcel-like or topology-aware.
 - **Attributes:** Configurable fields with generated values (nominal, ordinal, quantitative, etc.) using the built-in rule engine.
-- **Preview:** OpenLayers map preview of generated features.
+- **Preview:** OpenLayers map preview of generated features on a CARTO Dark Matter basemap.
 - **Export:** **GeoJSON** and **Shapefile** (ZIP via `@mapbox/shp-write`). **GeoPackage is not implemented** (the code path throws; do not rely on it).
 
 ---
 
 ## What it does *not* do (yet)
 
-- Natural-language or cloud “AI” generation
-- Network routing, street-following lines, or realistic urban clustering
-- GeoPackage export
-- Guaranteed reproducibility from a seed (RNG is not wired for deterministic runs)
-- Automated performance proof at very large feature counts (generation is a single-threaded client loop)
+- Natural-language or cloud “AI” generation — the prompt box is a rule-based keyword parser.
+- Network routing, street-following lines, or realistic urban clustering. Connected lines are a *plausible sketch*, not a real utility or road network.
+- GeoPackage export.
+- Guaranteed reproducibility from a seed (RNG is not wired for deterministic runs).
+- Automated performance proof at very large feature counts (generation is a single-threaded client loop).
+- Validation of generated geometry against a schema before download.
 
 See [`docs/AUDIT_REPORT.md`](docs/AUDIT_REPORT.md) for a source-grounded status table.
 

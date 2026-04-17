@@ -1,6 +1,7 @@
 # Geomockery Architecture Decision Memo
 
 **Date:** 2026-04-08
+**Revisited:** 2026-04-16 — decision stands. See the postscript at the end.
 
 ## Question
 
@@ -74,3 +75,21 @@ For v0.1, the architecture work should be:
 Do not migrate the architecture now.
 
 Ship the static browser demo first. Strengthen trust and validation around the current implementation. Re-open the Python or hybrid question only if future requirements clearly exceed what the current browser-first model can support.
+
+---
+
+## Postscript — 2026-04-16
+
+Since this memo was written, the repo added a **connected-lines** generator (main line + branches + optional loops) with no-go zone support. That extension landed entirely in client-side JavaScript (`@turf/turf` + OpenLayers) without forcing an architecture change, which is consistent with the original recommendation.
+
+What this confirms:
+
+- Client-side JS is still *sufficient* for the kind of generation Geomockery is positioned to do: plausible sketches inside a boundary, not routed networks.
+- The bottleneck is no longer "which language runs the generator". It is **trust**: can a user reproduce a dataset, explain how it was made, and verify it is structurally valid before shipping it downstream?
+
+What this changes in the forward plan:
+
+- The next wave of work (see `docs/geomockery-revival-roadmap.md`) focuses on seeded reproducibility, generation config exported beside every download, and light geometry validation. All three are well-suited to the current JS stack.
+- A Python or hybrid move only becomes interesting if we commit to *real* network routing (OSM-constrained roads, utility network topology with valid junctions) or to dataset sizes the browser cannot comfortably generate. Neither is on the near-term roadmap.
+
+Revisit this memo again if either condition changes.
