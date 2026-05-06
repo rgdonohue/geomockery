@@ -1,7 +1,8 @@
 import { saveAs } from 'file-saver';
 import * as shpwrite from '@mapbox/shp-write';
+import packageJson from '../../../package.json';
 
-const APP_VERSION = '0.2.0';
+const APP_VERSION = packageJson.version;
 
 /**
  * Build a structured generation config suitable for writing alongside

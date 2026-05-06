@@ -94,11 +94,9 @@ function generateProperties(attributes) {
         }
         break;
       case 'temporal': {
-        const startDate = new Date(attr.range.start);
-        const endDate = new Date(attr.range.end);
-        const randomDate = new Date(
-          startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime())
-        );
+        const startMs = new Date(attr.range.start).getTime();
+        const endMs = new Date(attr.range.end).getTime();
+        const randomDate = new Date(getRandomFloat(startMs, endMs));
         properties[attr.name] = randomDate.toISOString();
         break;
       }
