@@ -8,7 +8,17 @@ There is **no server** and **no LLM**: “prompt” and attribute behavior are d
 
 ---
 
-## What it does (v0.1)
+## Project status
+
+Current status: **working with caveats**.
+
+The v0.1 launch surface is in place, and the v0.2 trust slice has landed: visible seeded generation, export config sidecars, and non-blocking structural validation. The main known gaps are automated regression tests, live deployment smoke checks, external GIS interoperability checks for exported files, and broader shape realism.
+
+See [`docs/AUDIT_REPORT.md`](docs/AUDIT_REPORT.md) for the source-grounded status table.
+
+---
+
+## What it does (v0.2)
 
 - **Boundaries:** Map viewport, drawn polygon, or uploaded / URL GeoJSON.
 - **Geometry:**
@@ -18,9 +28,9 @@ There is **no server** and **no LLM**: “prompt” and attribute behavior are d
   - **Polygons** — jittered radial shapes, not parcel-like or topology-aware.
 - **Attributes:** Configurable fields with generated values (nominal, ordinal, quantitative, etc.) using the built-in rule engine.
 - **Preview:** OpenLayers map preview of generated features on a CARTO Dark Matter basemap.
-- **Reproducibility:** Every generation run uses a visible seed (numeric or word, word seeds are hashed). Same seed + same settings = same output.
+- **Reproducibility:** Every generation run uses a visible seed (numeric or word; word seeds are hashed). Same seed + same settings = same output in the current generator path.
 - **Structural validation:** Generated features are checked for self-intersections, zero-length lines, degenerate polygons, and missing coordinates. Findings are surfaced in the summary panel without blocking export.
-- **Export:** **GeoJSON** and **Shapefile** (ZIP via `@mapbox/shp-write`). Every export also writes a sibling `<filename>.config.json` describing how the dataset was produced (seed, settings, validation summary, timestamp). **GeoPackage is not implemented** (the code path throws; do not rely on it).
+- **Export:** **GeoJSON** and **Shapefile** (ZIP via `@mapbox/shp-write`). Every export also writes a sibling `<filename>.config.json` describing how the dataset was produced (app version, seed, settings, validation summary, timestamp). **GeoPackage is not implemented** (the code path throws; do not rely on it).
 
 ---
 
@@ -29,10 +39,9 @@ There is **no server** and **no LLM**: “prompt” and attribute behavior are d
 - Natural-language or cloud “AI” generation — the prompt box is a rule-based keyword parser.
 - Network routing, street-following lines, or realistic urban clustering. Connected lines are a *plausible sketch*, not a real utility or road network.
 - GeoPackage export.
-- Automated performance proof at very large feature counts (generation is a single-threaded client loop).
+- Automated regression tests or performance proof at very large feature counts (generation is a single-threaded client loop).
 - Schema-based validation of attribute values before download (structural geometry validation runs; attribute validation does not).
-
-See [`docs/AUDIT_REPORT.md`](docs/AUDIT_REPORT.md) for a source-grounded status table.
+- Confirmed export interoperability in external GIS software.
 
 ---
 
@@ -68,7 +77,7 @@ Output is written to `out/` (see `next.config.mjs`).
 
 ## Deploy
 
-GitHub Actions (`.github/workflows/deploy.yml`) builds and deploys the static `out/` directory to **GitHub Pages** on pushes to `main`. Configure the repository’s Pages source to match your workflow (e.g. `gh-pages` branch or artifact—verify in your repo settings).
+GitHub Actions (`.github/workflows/deploy.yml`) builds the static `out/` directory and deploys it to **GitHub Pages** with `actions/deploy-pages` on pushes to `main`. The workflow currently sets `GITHUB_PAGES_BASE_PATH=""` so the exported app loads from the site root for the custom domain.
 
 ---
 
@@ -78,7 +87,7 @@ GitHub Actions (`.github/workflows/deploy.yml`) builds and deploys the static `o
 src/
 ├── app/              # Next.js App Router pages (/, /generate, /about)
 ├── lib/
-│   ├── geo/          # Generators, exporters
+│   ├── geo/          # Generators, exporters, validation
 │   ├── ai/           # Rule-based prompt / attribute helpers (no LLM)
 │   └── utils/        # Random, helpers
 ├── hooks/            # useExport, useAiProcessor (barrel: src/hooks/index.js)
